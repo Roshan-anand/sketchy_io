@@ -20,8 +20,17 @@ const engine = new Engine({
 
 io.bind(engine);
 
+let onlinePlayers = 0;
+
 io.on("connection", (socket) => {
 	console.log("new connection :", socket.id);
+
+	io.emit("online-players", onlinePlayers++);
+
+	socket.on("disconnect", () => {
+		console.log("disconnected :", socket.id);
+		io.emit("online-players", --onlinePlayers);
+	});
 });
 
 export default {

@@ -3,9 +3,16 @@ import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { RootHeader } from "@/components/header";
 import { ThemeProvider } from "@/components/theme-provider";
+import ConnectSocket from "@/hooks/socketConntect";
 
 export const Route = createRootRoute({
-	component: () => (
+	component: Root,
+});
+
+function Root() {
+	ConnectSocket(); // connect to socket server
+
+	return (
 		<>
 			<ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
 				<span className="p-2 h-screen w-screen flex flex-col ">
@@ -25,5 +32,5 @@ export const Route = createRootRoute({
 				]}
 			/>
 		</>
-	),
-});
+	);
+}
