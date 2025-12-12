@@ -18,24 +18,22 @@ io.on("connection", (socket) => {
 
 	socket.on("disconnect", () => {
 		console.log("disconnected :", socket.id);
-		removePlayer(socket.id);
+
+		// remove player from room
+		const socketId = socket.id;
+		const roomId = players.get(socketId);
+		if (roomId) {
+			const room = gameRoom.get(roomId);
+			if (room) {
+				room.members.delete(socketId);
+				socket.leave(roomId);
+				// if room is empty, delete it
+				if (room.members.size === 0) gameRoom.delete(roomId);
+			}
+		}
+
 		io.emit("online-players", --onlinePlayers - 1);
 	});
 });
-
-/**
- * remove player from room
- * @param socketId
- */
-const removePlayer = (socketId: string) => {
-	const roomId = players.get(socketId);
-	if (!roomId) return;
-	const room = gameRoom.get(roomId);
-	if (room) {
-		room.members.delete(socketId);
-		// if room is empty, delete it
-		if (room.members.size === 0) gameRoom.delete(roomId);
-	}
-};
 
 export { io, gameRoom };

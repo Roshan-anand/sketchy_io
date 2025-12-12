@@ -62,6 +62,7 @@ export const roomListeners = (ws: Socket) => {
 		// logic to create a new room if all public room is full
 		if (!roomId) roomId = createNewRoom(GameType.PRIVATE, name, ws.id);
 
+		ws.join(roomId);
 		ws.emit("quick-room-joined", roomId);
 	});
 
@@ -80,12 +81,14 @@ export const roomListeners = (ws: Socket) => {
 		}
 
 		room.members.set(ws.id, { name, score: 0 });
+		ws.join(roomId);
 		ws.emit("room-joined", roomId);
 	});
 
 	// to create a new private room
 	ws.on("create-room", ({ name }: Create) => {
 		const roomId = createNewRoom(GameType.PRIVATE, name, ws.id);
+		ws.join(roomId);
 		ws.emit("room-created", roomId);
 	});
 };
