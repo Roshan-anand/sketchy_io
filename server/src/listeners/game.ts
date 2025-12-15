@@ -1,6 +1,6 @@
 import type { Socket } from "socket.io";
 import { GameRooms, HubUsers, io } from "../config/socket";
-import { GameStatus } from "../lib/types";
+import { GameStatus, type Setting } from "../lib/types";
 import { emitErr } from "./utils";
 
 type ChatMsg = {
@@ -41,5 +41,16 @@ export const gameListeners = (ws: Socket) => {
 		};
 
 		io.in(roomId).emit("chat-msg-client", clientMsg);
+	});
+
+	ws.on("start-game", (data: Setting) => {
+		const roomId = HubUsers.get(ws.id)?.roomId as string;
+		const room = GameRooms.get(roomId);
+		if (!room) {
+			emitErr(ws, "You are not in a valid room.");
+			return;
+		}
+		room.settings = data;
+		room.status = GameStatus.IN_PROGRESS;
 	});
 };

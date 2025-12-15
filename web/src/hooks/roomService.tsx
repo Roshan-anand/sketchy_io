@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { GameState, type Player } from "@/lib/types";
-import { socketConErr } from "@/lib/utils";
 import useRoomStore from "@/store/roomStore";
 import useSocketStore from "@/store/socketStore";
 
@@ -10,7 +9,7 @@ type RoomJoinedData = {
 };
 
 export const useRoomService = () => {
-	const { socket } = useSocketStore();
+	const { socket, wsEmit } = useSocketStore();
 	const { setEnterGame } = useRoomStore();
 
 	useEffect(() => {
@@ -39,22 +38,10 @@ export const useRoomService = () => {
 		};
 	}, [socket, setEnterGame]);
 
-	const joinRoom = (name: string, roomId: string) => {
-		if (!socket) {
-			socketConErr();
-			return;
-		}
-		socket.emit("join-room", { name, roomId });
-	};
+	const joinRoom = (name: string, roomId: string) =>
+		wsEmit("join-room", { name, roomId });
 
-	const createRoom = (name: string) => {
-		if (!socket) {
-			socketConErr();
-			return;
-		}
-		console.log("creating room");
-		socket.emit("create-room", { name });
-	};
+	const createRoom = (name: string) => wsEmit("create-room", { name });
 
 	return { createRoom, joinRoom };
 };

@@ -28,12 +28,18 @@ const createNewRoom = (type: GameType, name: string, wsId: string): string => {
 	};
 
 	const room: GameRoom = {
+		type,
 		members: new Map([[wsId, player]]),
+		status: GameStatus.WAITING,
+		settings: {
+			totalMembers: 8,
+			maxRounds: 3,
+			drawtime: 80,
+			hints: 2,
+		},
 		word: "",
 		round: 0,
 		drawerId: "",
-		status: GameStatus.WAITING,
-		type,
 	};
 	const roomId = generateId(6);
 	GameRooms.set(roomId, room);

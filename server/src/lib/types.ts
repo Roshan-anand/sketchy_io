@@ -16,13 +16,24 @@ export type Player = {
 
 export type Members = Map<string, Player>;
 
+export type Setting = {
+	totalMembers: number;
+	maxRounds: number;
+	drawtime: number;
+	hints: number;
+};
+
 export type GameRoom = {
+	type: GameType;
+
 	members: Members;
+	status: GameStatus;
+
+	settings: Setting;
+
 	word: string;
 	round: number;
 	drawerId: string;
-	status: GameStatus;
-	type: GameType;
 };
 
 export type User = {
