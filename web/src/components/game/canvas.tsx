@@ -1,3 +1,3 @@
 export function GameCanva() {
-	return <div>Game Canvas Component</div>;
+	return <div className={"w-full  bg-gray-200"}>Canvas Area</div>;
 }

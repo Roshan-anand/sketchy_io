@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from "react";
+import { type ComponentProps, useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
 import useSocketStore from "@/store/socketStore";
 import { Input } from "../ui/input";
 
@@ -8,7 +9,7 @@ type ChatMsg = {
 	isValid: boolean;
 };
 
-export function PlayerInput() {
+export function PlayerInput({ className }: ComponentProps<"section">) {
 	const { socket } = useSocketStore();
 	const [chatMsgs, setChatMsgs] = useState<ChatMsg[]>([]);
 
@@ -32,7 +33,7 @@ export function PlayerInput() {
 	}, [socket]);
 
 	return (
-		<section className="border rounded-md p-2">
+		<section className={cn("border rounded-md p-2", className)}>
 			<ul
 				ref={listRef}
 				className="max-h-48 overflow-y-auto mb-2 flex flex-col gap-1"

@@ -8,8 +8,6 @@
 - [ ] F4: Random avatar generator **[ easy, ui ]**
 - [ ] F5: Footer section having intro and rules **[ easy, ui ]**
 
----
-
 ## In game
 
 - [ ] F6: Game room settings
@@ -25,8 +23,7 @@
 - [ ] F16: Hint after few seconds
 - [ ] F17: Score calculation and display
 - [ ] F18: Game end screen with winner announcement
-
----
+- [ ] F19: Players settings
 
 ## Out of box **[ discussen needed ]**
 
@@ -36,3 +33,11 @@
 - [ ] F22: Custom theme (eg. animals, fruits)
 - [ ] F23: In game voice chat
 - [ ] F24: powerups (eg. letter hint, blank other players for few sec)
+
+---
+
+# Tasks
+
+- [ ] F6: Game room settings
+  - [ ] T1: Real Time changes
+  - [ ] T2: CUstom words

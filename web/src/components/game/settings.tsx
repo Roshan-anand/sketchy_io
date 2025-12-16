@@ -11,6 +11,8 @@ import {
 import useRoomStore from "@/store/roomStore";
 import useSocketStore from "@/store/socketStore";
 import { Button } from "../ui/button";
+import { CardContent, CardFooter } from "../ui/card";
+import { Label } from "../ui/label";
 
 type Setting = {
 	totalPlayers: number;
@@ -21,7 +23,7 @@ type Setting = {
 
 export function GameSettings() {
 	const { wsEmit } = useSocketStore();
-	const { roomId } = useRoomStore();
+	const { roomId, players, isHost } = useRoomStore();
 
 	const playersCount = useRef<string>("8");
 	const roundsCount = useRef<string>("3");
@@ -51,7 +53,13 @@ export function GameSettings() {
 		},
 	];
 
+	// Start game with selected settings
 	const handleStart = () => {
+		if (players.length < 2) {
+			toast.error("At least 2 players are required to start the game.");
+			return;
+		}
+
 		const settings: Setting = {
 			totalPlayers: parseInt(playersCount.current, 10),
 			maxRounds: parseInt(roundsCount.current, 10),
@@ -62,6 +70,7 @@ export function GameSettings() {
 		wsEmit("start-game", settings);
 	};
 
+	// Copy room link to clipboard
 	const handleCopy = async () => {
 		try {
 			const link = `${window.location.origin}/?${roomId}`;
@@ -73,21 +82,21 @@ export function GameSettings() {
 	};
 
 	return (
-		<section className="border p-2 w-[70%] max-w-150 mx-auto">
-			<form className="flex flex-wrap">
+		<>
+			<CardContent className="flex flex-wrap">
 				{options.map(({ input, lable, values }) => (
 					<div
 						key={lable}
 						className="w-1/2 flex items-center justify-between p-2"
 					>
-						<span className="text-sm font-medium ">{lable} :</span>
+						<Label>{lable} :</Label>
 						<Select
 							defaultValue={input.current}
 							onValueChange={(value) => {
 								if (input.current) input.current = value;
 							}}
 						>
-							<SelectTrigger className="w-1/2">
+							<SelectTrigger className="w-1/2" disabled={!isHost}>
 								<SelectValue />
 							</SelectTrigger>
 							<SelectContent>
@@ -100,19 +109,25 @@ export function GameSettings() {
 						</Select>
 					</div>
 				))}
-			</form>
-			<span className="flex items-center gap-2">
-				<Button variant={"secondary"} onClick={handleStart} className="w-[70%]">
+			</CardContent>
+			<CardFooter className="flex gap-2">
+				<Button
+					disabled={!isHost}
+					variant={"secondary"}
+					onClick={handleStart}
+					className="w-[70%]"
+				>
 					Start
 				</Button>
 				<Button
+					disabled={!isHost}
 					onClick={handleCopy}
 					className="flex-1 flex items-center gap-2 p-1"
 				>
 					<p>Invite</p>
 					<Copy />
 				</Button>
-			</span>
-		</section>
+			</CardFooter>
+		</>
 	);
 }
