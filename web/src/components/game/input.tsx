@@ -1,14 +1,8 @@
 import { type ComponentProps, useEffect, useRef, useState } from "react";
-import { WsEvs } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import type { ChatMsg } from "@/lib/types";
+import { cn, socketConErr } from "@/lib/utils";
 import useSocketStore from "@/store/socketStore";
 import { Input } from "../ui/input";
-
-type ChatMsg = {
-	name: string;
-	msg: string;
-	isValid: boolean;
-};
 
 export function PlayerInput({ className }: ComponentProps<"section">) {
 	const { socket } = useSocketStore();
@@ -19,8 +13,8 @@ export function PlayerInput({ className }: ComponentProps<"section">) {
 
 	// to listen for incoming chat msgs from server
 	useEffect(() => {
-		if (!socket || socket.hasListeners(WsEvs.MSG_TO_WEB)) return;
-		socket.on(WsEvs.MSG_TO_WEB, (data: ChatMsg) => {
+		if (!socket || socket.hasListeners("chatMsg")) return;
+		socket.on("chatMsg", (data) => {
 			setChatMsgs((prev) => [...prev, data]);
 
 			// scroll to bottom
@@ -29,7 +23,7 @@ export function PlayerInput({ className }: ComponentProps<"section">) {
 			list.scrollTop = list.scrollHeight;
 		});
 		return () => {
-			socket.off(WsEvs.MSG_TO_WEB);
+			socket.off("chatMsg");
 		};
 	}, [socket]);
 
@@ -43,7 +37,6 @@ export function PlayerInput({ className }: ComponentProps<"section">) {
 					const key = `${i}-${name}`;
 					return (
 						<li
-							// key={`${name}-${crypto}`}
 							key={key}
 							className={`flex gap-1 items-center ${isValid && " bg-green-500/20 "}`}
 						>
@@ -61,7 +54,11 @@ export function PlayerInput({ className }: ComponentProps<"section">) {
 						const input = inputRef.current;
 						if (!input || !input.value.trim()) return;
 
-						socket?.emit("chat-msg-server", input.value);
+						if (!socket) {
+							socketConErr();
+							return;
+						}
+						socket.emit("chatMsg", input.value);
 						input.value = "";
 					}}
 					ref={inputRef}

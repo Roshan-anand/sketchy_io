@@ -22,12 +22,8 @@ export const generateId = (size: number) => {
  * @returns
  */
 export const MemberMapToArray = (members: Members) => {
-	const players = Array.from(members, ([id, player]) => {
-		return {
-			id,
-			...player,
-		};
+	const players = Array.from(members, ([_, player]) => {
+		return player;
 	});
-
 	return players;
 };

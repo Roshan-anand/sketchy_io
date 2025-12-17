@@ -1,3 +1,5 @@
+import type { Socket } from "socket.io-client";
+
 export enum GameState {
 	ONBOARDING,
 	WAITING,
@@ -10,22 +12,33 @@ export type Player = {
 	id: string;
 };
 
-export enum WsEvs {
-	// game utils
-	ONLINE = "online-players",
-	ERROR = "ws-error",
-	MEMBERS_UPDATE = "room-members",
+export type Setting = {
+	totalPlayers: number;
+	maxRounds: number;
+	drawTime: number;
+	hints: number;
+};
 
-	// room operations
-	CREATE_ROOM = "create-room",
-	ROOM_CREATED = "room-created",
-	JOIN_ROOM = "join-room",
-	ROOM_JOINED = "room-joined",
+export type ChatMsg = {
+	name: string;
+	msg: string;
+	isValid: boolean;
+};
 
-	// game life cycle
-	START_GAME = "start-game",
+type ClientSentEvents = {
+	joinRoom: (name: string, roomId: string) => void;
+	createRoom: (name: string) => void;
+	startGame: (settings: Setting) => void;
+	chatMsg: (msg: string) => void;
+};
 
-	// chat operations
-	MSG_TO_SERVER = "msg-to-server",
-	MSG_TO_WEB = "msg-to-web",
-}
+type ServerSentEvents = {
+	roomJoined: (roomId: string, players: Player[]) => void;
+	roomCreated: (roomId: string, players: Player[]) => void;
+	chatMsg: (msg: ChatMsg) => void;
+	roomMembers: (players: Player[]) => void;
+	wsError: (error: string) => void;
+	playersOnline: (count: number) => void;
+};
+
+export type TypedSocket = Socket<ServerSentEvents, ClientSentEvents>;

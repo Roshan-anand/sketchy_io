@@ -1,3 +1,5 @@
+import type { DefaultEventsMap, Server, Socket } from "socket.io";
+
 export enum GameType {
 	PUBLIC,
 	PRIVATE,
@@ -12,6 +14,7 @@ export enum GameStatus {
 export type Player = {
 	name: string;
 	score: number;
+	id: string;
 };
 
 export type Members = Map<string, Player>;
@@ -21,6 +24,12 @@ export type Setting = {
 	maxRounds: number;
 	drawTime: number;
 	hints: number;
+};
+
+export type ChatMsg = {
+	name: string;
+	msg: string;
+	isValid: boolean;
 };
 
 export type GameRoom = {
@@ -41,22 +50,35 @@ export type User = {
 	roomId: string;
 };
 
-export enum WsEvs {
-	// game utils
-	ONLINE = "online-players",
-	ERROR = "ws-error",
-	MEMBERS_UPDATE = "room-members",
+// Define typed events for Socket.IO
+type ServerSentEvents = {
+	roomJoined: (roomId: string, players: Player[]) => void;
+	roomCreated: (roomId: string, players: Player[]) => void;
+	chatMsg: (msg: ChatMsg) => void;
+	roomMembers: (players: Player[]) => void;
+	wsError: (error: string) => void;
+	playersOnline: (count: number) => void;
+};
 
-	// room operations
-	CREATE_ROOM = "create-room",
-	ROOM_CREATED = "room-created",
-	JOIN_ROOM = "join-room",
-	ROOM_JOINED = "room-joined",
+type ClientSentEvents = {
+	joinRoom: (name: string, roomId: string) => void;
+	createRoom: (name: string) => void;
+	startGame: (settings: Setting) => void;
+	chatMsg: (msg: string) => void;
+};
+// type InterServerEvents = {};
 
-	// game life cycle
-	START_GAME = "start-game",
+type SocketData = {
+	roomId: string;
+	name: string;
+	score: number;
+};
 
-	// chat operations
-	MSG_TO_SERVER = "msg-to-server",
-	MSG_TO_WEB = "msg-to-web",
-}
+export type TypedScoket = Socket<
+	ClientSentEvents,
+	ServerSentEvents,
+	DefaultEventsMap,
+	SocketData
+>;
+
+export type TypedIo = Server<ClientSentEvents, ServerSentEvents>;

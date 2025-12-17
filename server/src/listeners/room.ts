@@ -1,23 +1,13 @@
-import type { Socket } from "socket.io";
 import { GameRooms, HubUsers } from "../config/socket";
 import {
 	type GameRoom,
 	GameStatus,
 	GameType,
 	type Player,
-	WsEvs,
+	type TypedScoket,
 } from "../lib/types";
 import { generateId, MemberMapToArray } from "../lib/utils";
 import { broadcastTotalMembers, emitErr } from "./utils";
-
-type Create = {
-	name: string;
-};
-
-type Join = {
-	name: string;
-	roomId: string;
-};
 
 /**
  * to create a new game room with initial player
@@ -31,6 +21,7 @@ const createNewRoom = (type: GameType, name: string, wsId: string): string => {
 	const player: Player = {
 		name,
 		score: 0,
+		id: wsId,
 	};
 
 	const room: GameRoom = {
@@ -53,7 +44,7 @@ const createNewRoom = (type: GameType, name: string, wsId: string): string => {
 	return roomId;
 };
 
-export const roomListeners = (ws: Socket) => {
+export const roomListeners = (ws: TypedScoket) => {
 	// to quickly join any random room
 	// ws.on(WsEvs.CREATE_ROOM, ({ name }: Create) => {
 	//   let roomId: string | null = null;
@@ -79,7 +70,7 @@ export const roomListeners = (ws: Socket) => {
 	// });
 
 	// to join a private room
-	ws.on(WsEvs.JOIN_ROOM, ({ name, roomId }: Join) => {
+	ws.on("joinRoom", (name, roomId) => {
 		const room = GameRooms.get(roomId);
 
 		// if no room join a random room
@@ -89,18 +80,18 @@ export const roomListeners = (ws: Socket) => {
 		}
 
 		// else join the user to the room
-		room.members.set(ws.id, { name, score: 0 });
+		room.members.set(ws.id, { name, score: 0, id: ws.id });
 		HubUsers.set(ws.id, { name, roomId }); // set roomId for the client
 
 		const players = MemberMapToArray(room.members);
 
 		broadcastTotalMembers(roomId);
-		ws.emit(WsEvs.ROOM_JOINED, { roomId, players });
+		ws.emit("roomJoined", roomId, players);
 		ws.join(roomId);
 	});
 
 	// to create a new private room
-	ws.on(WsEvs.CREATE_ROOM, ({ name }: Create) => {
+	ws.on("createRoom", (name) => {
 		const roomId = createNewRoom(GameType.PRIVATE, name, ws.id);
 		HubUsers.set(ws.id, { name, roomId }); // set roomId for the client
 
@@ -112,7 +103,7 @@ export const roomListeners = (ws: Socket) => {
 			},
 		];
 
-		ws.emit(WsEvs.ROOM_CREATED, { roomId, players });
+		ws.emit("roomCreated", roomId, players);
 		ws.join(roomId);
 	});
 };

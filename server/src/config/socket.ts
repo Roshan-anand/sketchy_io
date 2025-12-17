@@ -1,10 +1,10 @@
 import { Server } from "socket.io";
-import { type GameRoom, type User, WsEvs } from "../lib/types";
+import type { GameRoom, TypedIo, User } from "../lib/types";
 import { gameListeners } from "../listeners/game";
 import { roomListeners } from "../listeners/room";
 import { broadcastTotalMembers } from "../listeners/utils";
 
-const io = new Server();
+const io = new Server() as TypedIo;
 
 /**
  *  global state of palyers and room
@@ -17,7 +17,7 @@ const HubUsers = new Map<string, User>();
 let onlinePlayers = 0;
 
 io.on("connection", (socket) => {
-	io.emit(WsEvs.ONLINE, onlinePlayers++);
+	io.emit("playersOnline", onlinePlayers++);
 
 	// register all the listeners
 	roomListeners(socket);
@@ -40,7 +40,7 @@ io.on("connection", (socket) => {
 			}
 		}
 
-		io.emit(WsEvs.ONLINE, --onlinePlayers - 1);
+		io.emit("playersOnline", --onlinePlayers - 1);
 	});
 });
 

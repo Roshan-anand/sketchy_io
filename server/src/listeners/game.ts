@@ -1,17 +1,10 @@
-import type { Socket } from "socket.io";
 import { GameRooms, HubUsers, io } from "../config/socket";
-import { GameStatus, type Setting, WsEvs } from "../lib/types";
+import { GameStatus, type TypedScoket } from "../lib/types";
 import { emitErr } from "./utils";
 
-type ChatMsg = {
-	name: string;
-	msg: string;
-	isValid: boolean;
-};
-
-export const gameListeners = (ws: Socket) => {
+export const gameListeners = (ws: TypedScoket) => {
 	// chat message from client
-	ws.on(WsEvs.MSG_TO_SERVER, (msg: string) => {
+	ws.on("chatMsg", (msg) => {
 		const user = HubUsers.get(ws.id);
 		if (!user) {
 			emitErr(ws, "somthing went wrong.");
@@ -34,16 +27,10 @@ export const gameListeners = (ws: Socket) => {
 			}
 		}
 
-		const clientMsg: ChatMsg = {
-			name,
-			msg,
-			isValid,
-		};
-
-		io.in(roomId).emit(WsEvs.MSG_TO_WEB, clientMsg);
+		io.in(roomId).emit("chatMsg", { name, msg, isValid });
 	});
 
-	ws.on(WsEvs.START_GAME, (data: Setting) => {
+	ws.on("startGame", (data) => {
 		const roomId = HubUsers.get(ws.id)?.roomId as string;
 		const room = GameRooms.get(roomId);
 		if (!room) {

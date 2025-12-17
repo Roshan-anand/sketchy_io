@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 import { toast } from "sonner";
-import { WsEvs } from "@/lib/types";
+import type { TypedSocket } from "@/lib/types";
 import useSocketStore from "@/store/socketStore";
 
 /**
@@ -17,16 +17,15 @@ const ConnectSocket = () => {
 			throw new Error("VITE_SERVER_URL is not defined");
 		}
 
-		const socket = io(url);
+		const socket = io(url) as TypedSocket;
 
 		socket.on("connect", () => {
 			setSocket(socket);
 			setIsConnected(true);
 		});
 
-		socket.on(WsEvs.ONLINE, (data: number) => setOnlinePlayers(data));
-
-		socket.on(WsEvs.ERROR, (err) => toast.error(err));
+		socket.on("playersOnline", (data) => setOnlinePlayers(data));
+		socket.on("wsError", (err) => toast.error(err));
 
 		socket.on("disconnect", () => {
 			setSocket(null);
@@ -35,8 +34,9 @@ const ConnectSocket = () => {
 
 		return () => {
 			socket.off("connect");
-			socket.off("online-players");
 			socket.off("disconnect");
+			socket.off("playersOnline");
+			socket.off("wsError");
 			socket.close();
 			setIsConnected(false);
 		};

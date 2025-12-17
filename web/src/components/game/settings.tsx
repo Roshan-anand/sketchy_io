@@ -8,23 +8,17 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { WsEvs } from "@/lib/types";
+import type { Setting } from "@/lib/types";
+import { socketConErr } from "@/lib/utils";
 import useRoomStore from "@/store/roomStore";
 import useSocketStore from "@/store/socketStore";
 import { Button } from "../ui/button";
 import { CardContent, CardFooter } from "../ui/card";
 import { Label } from "../ui/label";
 
-type Setting = {
-	totalPlayers: number;
-	maxRounds: number;
-	drawTime: number;
-	hints: number;
-};
-
 export function GameSettings() {
-	const { wsEmit } = useSocketStore();
 	const { roomId, players, isHost } = useRoomStore();
+	const { socket } = useSocketStore();
 
 	const playersCount = useRef<string>("8");
 	const roundsCount = useRef<string>("3");
@@ -68,7 +62,8 @@ export function GameSettings() {
 			hints: parseInt(hintsCount.current, 10),
 		};
 
-		wsEmit(WsEvs.START_GAME, settings);
+		if (!socket) socketConErr();
+		else socket.emit("startGame", settings);
 	};
 
 	// Copy room link to clipboard
