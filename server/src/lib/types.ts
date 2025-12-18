@@ -1,5 +1,20 @@
 import type { DefaultEventsMap, Server, Socket } from "socket.io";
 
+export enum GameEntryType {
+	CREATE,
+	JOIN,
+}
+export type WsAuth =
+	| {
+			name: string;
+			type: GameEntryType.CREATE;
+	  }
+	| {
+			name: string;
+			type: GameEntryType.JOIN;
+			roomId: string;
+	  };
+
 export enum GameType {
 	PUBLIC,
 	PRIVATE,
@@ -46,22 +61,18 @@ export type GameRoom = {
 };
 
 // Define typed events for Socket.IO
+type ClientSentEvents = {
+	startGame: (settings: Setting) => void;
+	chatMsg: (msg: string) => void;
+};
+
 type ServerSentEvents = {
 	roomJoined: (roomId: string, players: Player[]) => void;
 	roomCreated: (roomId: string, players: Player[]) => void;
 	chatMsg: (msg: ChatMsg) => void;
 	roomMembers: (players: Player[]) => void;
 	wsError: (error: string) => void;
-	playersOnline: (count: number) => void;
 };
-
-type ClientSentEvents = {
-	joinRoom: (name: string, roomId: string) => void;
-	createRoom: (name: string) => void;
-	startGame: (settings: Setting) => void;
-	chatMsg: (msg: string) => void;
-};
-// type InterServerEvents = {};
 
 type SocketData = {
 	roomId: string;

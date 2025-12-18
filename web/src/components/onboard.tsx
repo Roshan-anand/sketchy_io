@@ -1,16 +1,14 @@
 import { useRef } from "react";
 import { toast } from "sonner";
-import { useRoomService } from "@/hooks/roomService";
+import { GameEntryType, GameState } from "@/lib/types";
+import useRoomStore from "@/store/roomStore";
+import useSocketStore from "@/store/socketStore";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
-enum GameEntryType {
-	CREATE,
-	JOIN,
-}
-
 export function PlayerOnboard() {
-	const { joinRoom, createRoom } = useRoomService();
+	const { connect } = useSocketStore();
+	const { setGameState } = useRoomStore();
 
 	const nameRef = useRef<HTMLInputElement>(null);
 
@@ -25,8 +23,10 @@ export function PlayerOnboard() {
 
 		if (type === GameEntryType.JOIN) {
 			const roomId = window.location.search.replace("?", "");
-			joinRoom(name, roomId);
-		} else createRoom(name);
+			connect({ name, roomId, type: GameEntryType.JOIN });
+		} else connect({ name, type: GameEntryType.CREATE });
+
+		setGameState(GameState.FINDING);
 	};
 
 	return (

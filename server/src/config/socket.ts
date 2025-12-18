@@ -1,7 +1,13 @@
 import { Server } from "socket.io";
-import type { GameRoom, TypedIo, TypedScoket } from "../lib/types";
+import {
+	GameEntryType,
+	type GameRoom,
+	type TypedIo,
+	type TypedScoket,
+	type WsAuth,
+} from "../lib/types";
 import { gameListeners } from "../listeners/game";
-import { roomListeners } from "../listeners/room";
+import { createRoom, joinRoom } from "../listeners/room";
 import { broadcastTotalMembers } from "../listeners/utils";
 
 const io = new Server() as TypedIo;
@@ -10,13 +16,14 @@ const io = new Server() as TypedIo;
  *  global state of palyers and room
  */
 const GameRooms = new Map<string, GameRoom>();
-let onlinePlayers = 0;
 
 io.on("connection", (socket: TypedScoket) => {
-	io.emit("playersOnline", onlinePlayers++);
+	console.log("new client connected : ", socket.handshake.auth);
+	const auth = socket.handshake.auth as WsAuth;
+	if (auth.type === GameEntryType.CREATE) createRoom(socket, auth.name);
+	else joinRoom(socket, auth.name, auth.roomId);
 
 	// register all the listeners
-	roomListeners(socket);
 	gameListeners(socket);
 
 	socket.on("disconnect", () => {
@@ -33,8 +40,6 @@ io.on("connection", (socket: TypedScoket) => {
 				if (room.members.size === 0) GameRooms.delete(roomId);
 			}
 		}
-
-		io.emit("playersOnline", --onlinePlayers - 1);
 	});
 });
 

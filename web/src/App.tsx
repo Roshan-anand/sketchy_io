@@ -2,13 +2,12 @@ import { RootFooter } from "./components/footer";
 import { GameInterface } from "./components/game/interface";
 import { RootHeader } from "./components/header";
 import { PlayerOnboard } from "./components/onboard";
-import ConnectSocket from "./hooks/socketConntect";
+import useConnectSocket from "./hooks/socketConntect";
 import { GameState } from "./lib/types";
 import useRoomStore from "./store/roomStore";
 
 function App() {
-	ConnectSocket();
-
+	useConnectSocket();
 	const { gameState } = useRoomStore();
 
 	return (

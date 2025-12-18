@@ -1,46 +1,63 @@
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 import { toast } from "sonner";
-import type { TypedSocket } from "@/lib/types";
+import { GameState, type TypedSocket } from "@/lib/types";
+import useRoomStore from "@/store/roomStore";
 import useSocketStore from "@/store/socketStore";
 
 /**
  * makes connection to the socket server.
  *  and makes connection value globally available.
  */
-const ConnectSocket = () => {
+const useConnectSocket = () => {
 	const url = import.meta.env.VITE_SERVER_URL as string | undefined;
-	const { setSocket, setIsConnected, setOnlinePlayers } = useSocketStore();
+	const { setSocket, setIsConnected } = useSocketStore();
+	const { setGameState, setEnterGame } = useRoomStore();
 
 	useEffect(() => {
 		if (!url) {
 			throw new Error("VITE_SERVER_URL is not defined");
 		}
 
-		const socket = io(url) as TypedSocket;
+		const socket = io(url, {
+			autoConnect: false,
+			reconnection: true,
+			reconnectionDelay: 1000,
+		}) as TypedSocket;
 
-		socket.on("connect", () => {
-			setSocket(socket);
-			setIsConnected(true);
+		setSocket(socket);
+
+		socket.on("connect", () => setIsConnected(true));
+
+		socket.on("wsError", (err) => toast.error(err));
+
+		socket.on("roomCreated", (roomId, players) => {
+			window.history.replaceState({}, document.title, window.location.origin);
+			setEnterGame(GameState.WAITING, roomId, true, players);
 		});
 
-		socket.on("playersOnline", (data) => setOnlinePlayers(data));
-		socket.on("wsError", (err) => toast.error(err));
+		// listen for room join confirmation
+		socket.on("roomJoined", (roomId, players) =>
+			setEnterGame(GameState.WAITING, roomId, false, players),
+		);
 
 		socket.on("disconnect", () => {
 			setSocket(null);
 			setIsConnected(false);
+			setGameState(GameState.ONBOARDING);
 		});
 
 		return () => {
 			socket.off("connect");
-			socket.off("disconnect");
-			socket.off("playersOnline");
 			socket.off("wsError");
+			socket.off("roomCreated");
+			socket.off("roomJoined");
+			socket.off("disconnect");
 			socket.close();
+			setSocket(null);
 			setIsConnected(false);
 		};
-	}, [setSocket, setIsConnected, setOnlinePlayers]);
+	}, [setSocket, setIsConnected, setGameState, setEnterGame]);
 };
 
-export default ConnectSocket;
+export default useConnectSocket;

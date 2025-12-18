@@ -44,67 +44,65 @@ const createNewRoom = (type: GameType, name: string, wsId: string): string => {
 	return roomId;
 };
 
-export const roomListeners = (ws: TypedScoket) => {
-	// to quickly join any random room
-	// ws.on(WsEvs.CREATE_ROOM, ({ name }: Create) => {
-	//   let roomId: string | null = null;
+// export const roomListeners = (ws: TypedScoket) => {
+//   // to quickly join any random room
+//   // ws.on(WsEvs.CREATE_ROOM, ({ name }: Create) => {
+//   //   let roomId: string | null = null;
 
-	//   // logic to find a room that is playing
-	//   for (const id in GameRooms) {
-	//     const currentRoom = GameRooms.get(id);
-	//     if (!currentRoom) continue;
-	//     if (currentRoom.type === GameType.PUBLIC) {
-	//       if (currentRoom.members.size < 6) {
-	//         roomId = id;
-	//         currentRoom.members.set(ws.id, { name, score: 0 });
-	//         break;
-	//       }
-	//     }
-	//   }
+//   //   // logic to find a room that is playing
+//   //   for (const id in GameRooms) {
+//   //     const currentRoom = GameRooms.get(id);
+//   //     if (!currentRoom) continue;
+//   //     if (currentRoom.type === GameType.PUBLIC) {
+//   //       if (currentRoom.members.size < 6) {
+//   //         roomId = id;
+//   //         currentRoom.members.set(ws.id, { name, score: 0 });
+//   //         break;
+//   //       }
+//   //     }
+//   //   }
 
-	//   // logic to create a new room if all public room is full
-	//   if (!roomId) roomId = createNewRoom(GameType.PRIVATE, name, ws.id);
+//   //   // logic to create a new room if all public room is full
+//   //   if (!roomId) roomId = createNewRoom(GameType.PRIVATE, name, ws.id);
 
-	//   ws.join(roomId);
-	//   ws.emit("quick-room-joined", roomId);
-	// });
+//   //   ws.join(roomId);
+//   //   ws.emit("quick-room-joined", roomId);
+//   // });
+// };
 
-	// to join a private room
-	ws.on("joinRoom", (name, roomId) => {
-		const room = GameRooms.get(roomId);
+export const joinRoom = (ws: TypedScoket, name: string, roomId: string) => {
+	const room = GameRooms.get(roomId);
 
-		// if no room join a random room
-		if (!room) {
-			emitErr(ws, "join a random room");
-			return;
-		}
+	// if no room join a random room
+	if (!room) {
+		emitErr(ws, "join a random room");
+		return;
+	}
 
-		// else join the user to the room
-		room.members.set(ws.id, { name, score: 0, id: ws.id });
-		ws.data = { name, roomId };
-		ws.data = { name, roomId };
+	// else join the user to the room
+	room.members.set(ws.id, { name, score: 0, id: ws.id });
+	ws.data = { name, roomId };
+	ws.data = { name, roomId };
 
-		const players = MemberMapToArray(room.members);
+	const players = MemberMapToArray(room.members);
 
-		broadcastTotalMembers(roomId);
-		ws.emit("roomJoined", roomId, players);
-		ws.join(roomId);
-	});
+	broadcastTotalMembers(roomId);
+	ws.emit("roomJoined", roomId, players);
+	ws.join(roomId);
+};
 
-	// to create a new private room
-	ws.on("createRoom", (name) => {
-		const roomId = createNewRoom(GameType.PRIVATE, name, ws.id);
-		ws.data = { name, roomId };
+export const createRoom = (ws: TypedScoket, name: string) => {
+	const roomId = createNewRoom(GameType.PRIVATE, name, ws.id);
+	ws.data = { name, roomId };
 
-		const players = [
-			{
-				name,
-				score: 0,
-				id: ws.id,
-			},
-		];
+	const players = [
+		{
+			name,
+			score: 0,
+			id: ws.id,
+		},
+	];
 
-		ws.emit("roomCreated", roomId, players);
-		ws.join(roomId);
-	});
+	ws.emit("roomCreated", roomId, players);
+	ws.join(roomId);
 };

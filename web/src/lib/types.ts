@@ -1,7 +1,23 @@
 import type { Socket } from "socket.io-client";
 
+export enum GameEntryType {
+	CREATE,
+	JOIN,
+}
+export type WsAuth =
+	| {
+			name: string;
+			type: GameEntryType.CREATE;
+	  }
+	| {
+			name: string;
+			type: GameEntryType.JOIN;
+			roomId: string;
+	  };
+
 export enum GameState {
 	ONBOARDING,
+	FINDING,
 	WAITING,
 	PLAYING,
 }
@@ -26,8 +42,6 @@ export type ChatMsg = {
 };
 
 type ClientSentEvents = {
-	joinRoom: (name: string, roomId: string) => void;
-	createRoom: (name: string) => void;
 	startGame: (settings: Setting) => void;
 	chatMsg: (msg: string) => void;
 };
@@ -38,7 +52,6 @@ type ServerSentEvents = {
 	chatMsg: (msg: ChatMsg) => void;
 	roomMembers: (players: Player[]) => void;
 	wsError: (error: string) => void;
-	playersOnline: (count: number) => void;
 };
 
 export type TypedSocket = Socket<ServerSentEvents, ClientSentEvents>;
