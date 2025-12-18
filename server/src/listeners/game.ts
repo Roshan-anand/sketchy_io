@@ -1,17 +1,11 @@
-import { GameRooms, HubUsers, io } from "../config/socket";
+import { GameRooms, io } from "../config/socket";
 import { GameStatus, type TypedScoket } from "../lib/types";
 import { emitErr } from "./utils";
 
 export const gameListeners = (ws: TypedScoket) => {
 	// chat message from client
 	ws.on("chatMsg", (msg) => {
-		const user = HubUsers.get(ws.id);
-		if (!user) {
-			emitErr(ws, "somthing went wrong.");
-			return;
-		}
-
-		const { name, roomId } = user;
+		const { name, roomId } = ws.data;
 		const room = GameRooms.get(roomId);
 		if (!room) {
 			emitErr(ws, "You are not in a valid room.");
@@ -31,8 +25,7 @@ export const gameListeners = (ws: TypedScoket) => {
 	});
 
 	ws.on("startGame", (data) => {
-		const roomId = HubUsers.get(ws.id)?.roomId as string;
-		const room = GameRooms.get(roomId);
+		const room = GameRooms.get(ws.data.roomId);
 		if (!room) {
 			emitErr(ws, "You are not in a valid room.");
 			return;

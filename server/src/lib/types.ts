@@ -45,11 +45,6 @@ export type GameRoom = {
 	drawerId: string;
 };
 
-export type User = {
-	name: string;
-	roomId: string;
-};
-
 // Define typed events for Socket.IO
 type ServerSentEvents = {
 	roomJoined: (roomId: string, players: Player[]) => void;
@@ -71,7 +66,6 @@ type ClientSentEvents = {
 type SocketData = {
 	roomId: string;
 	name: string;
-	score: number;
 };
 
 export type TypedScoket = Socket<

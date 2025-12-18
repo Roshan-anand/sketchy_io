@@ -1,4 +1,4 @@
-import { GameRooms, HubUsers } from "../config/socket";
+import { GameRooms } from "../config/socket";
 import {
 	type GameRoom,
 	GameStatus,
@@ -81,7 +81,8 @@ export const roomListeners = (ws: TypedScoket) => {
 
 		// else join the user to the room
 		room.members.set(ws.id, { name, score: 0, id: ws.id });
-		HubUsers.set(ws.id, { name, roomId }); // set roomId for the client
+		ws.data = { name, roomId };
+		ws.data = { name, roomId };
 
 		const players = MemberMapToArray(room.members);
 
@@ -93,7 +94,7 @@ export const roomListeners = (ws: TypedScoket) => {
 	// to create a new private room
 	ws.on("createRoom", (name) => {
 		const roomId = createNewRoom(GameType.PRIVATE, name, ws.id);
-		HubUsers.set(ws.id, { name, roomId }); // set roomId for the client
+		ws.data = { name, roomId };
 
 		const players = [
 			{
