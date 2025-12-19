@@ -64,6 +64,7 @@ export type GameRoom = {
 type ClientSentEvents = {
 	startGame: (settings: Setting) => void;
 	chatMsg: (msg: string) => void;
+	choiceMade: (choice: string) => void;
 };
 
 type ServerSentEvents = {
@@ -71,6 +72,11 @@ type ServerSentEvents = {
 	roomCreated: (roomId: string, players: Player[]) => void;
 	chatMsg: (msg: ChatMsg) => void;
 	roomMembers: (players: Player[]) => void;
+	gameRound: (round: number) => void;
+	youChoosing: (choice: string[]) => void;
+	startRound: (choiceLen: number) => void;
+	roundOver: (word: string) => void;
+	otherChoosing: (name: string) => void;
 	wsError: (error: string) => void;
 };
 
