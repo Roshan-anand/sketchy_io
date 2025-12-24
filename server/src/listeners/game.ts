@@ -18,12 +18,11 @@ export const gameListeners = (ws: TypedScoket) => {
 		io.in(roomId).emit("chatMsg", { name, msg, isValid });
 	});
 
-	ws.on("startGame", (data) => {
+	ws.on("startGame", () => {
 		const room = GameRooms.get(ws.data.roomId);
 		if (!room) {
 			emitErr(ws, "You are not in a valid room.");
 			return;
 		}
-		room.updateSettings(data);
 	});
 };

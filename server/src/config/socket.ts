@@ -36,7 +36,7 @@ io.on("connection", (socket: TypedScoket) => {
 			socket.leave(roomId);
 			broadcastTotalMembers(roomId);
 			// if room is empty, delete it
-			if (room.getPlayersCount() === 0) GameRooms.delete(roomId);
+			if (room.playerCount === 0) GameRooms.delete(roomId);
 		}
 	});
 });
