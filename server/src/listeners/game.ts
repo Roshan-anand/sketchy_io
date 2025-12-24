@@ -13,13 +13,7 @@ export const gameListeners = (ws: TypedScoket) => {
 		}
 
 		// check if the msg is the correct word
-		const isValid = false;
-		// if (room.status === GameStatus.IN_PROGRESS) {
-		//   if (msg.toLowerCase() === room.word.toLowerCase()) {
-		//     isValid = true;
-		//     // other logic if correct ( update score, reduce time, etc. )
-		//   }
-		// }
+		const isValid = room.vallidateWord(msg);
 
 		io.in(roomId).emit("chatMsg", { name, msg, isValid });
 	});
