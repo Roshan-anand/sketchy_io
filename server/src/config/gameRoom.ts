@@ -4,17 +4,27 @@ import {
 	type Player,
 	type Setting,
 } from "../lib/types";
+import { io } from "./socket";
 
 class GameRoom {
+	// general game data
+	private roomId: string;
 	private type: GameType;
-	private players: Map<string, Player>;
 	private _status: GameStatus;
 	private _settings: Setting;
-	private word: string | undefined;
-	// private round: number;
-	// private drawerId: string | undefined;
+	private players: Map<string, Player>;
 
-	constructor(type: GameType) {
+	// each round data
+	private round: number;
+
+	// each match data
+	private drawerId?: string;
+	private word?: string;
+	private matchTimeOutId?: number;
+	// private
+
+	constructor(type: GameType, roomId: string) {
+		this.roomId = roomId;
 		this.type = type;
 		this.players = new Map();
 		this._status = GameStatus.WAITING;
@@ -24,39 +34,50 @@ class GameRoom {
 			drawTime: 80,
 			hints: 2,
 		};
-		// this.round = 0;
+		this.round = 0;
 	}
 
-	// get total players count
+	/** get total players count */
 	get playerCount() {
 		return this.players.size;
 	}
 
-	// update the game status
+	/** update the game status */
 	set status(status: GameStatus) {
 		this._status = status;
 	}
 
-	// update the game settings
+	/** update the game settings */
 	set settings(settings: Setting) {
 		this._settings = settings;
 	}
 
-	// add a player to the room
+	/** add a player to the room */
 	addPlayer(player: Player) {
 		this.players.set(player.id, player);
 	}
 
-	// get all players in the room
+	/** get all players in the room */
 	getAllPlayers() {
 		return Array.from(this.players, ([_, player]) => {
 			return player;
 		});
 	}
 
-	// remove a player from the room
+	/** remove a player from the room */
 	removePlayer(playerId: string) {
 		this.players.delete(playerId);
+	}
+
+	/** starts a new round  */
+	private startRound() {
+		io.to(this.roomId).emit("roundInfo", this.round); // emit the round info
+	}
+
+	/** starts the game */
+	start() {
+		this.status = GameStatus.IN_PROGRESS;
+		this.startRound();
 	}
 
 	// validate the word
@@ -68,7 +89,7 @@ class GameRoom {
 
 	// TODO: remove log method when all the variable are in use
 	log() {
-		console.log(this._settings, this.type);
+		console.log(this._settings, this.type, this.matchTimeOutId, this.drawerId);
 	}
 }
 

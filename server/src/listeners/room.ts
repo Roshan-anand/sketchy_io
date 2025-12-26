@@ -55,10 +55,10 @@ export const createRoom = (ws: TypedScoket, name: string) => {
 		id: ws.id,
 	};
 
-	const room = new GameRoom(GameType.PRIVATE); // create a private room instance
+	const roomId = generateId(6);
+	const room = new GameRoom(GameType.PRIVATE, roomId); // create a private room instance
 	room.addPlayer(player);
 
-	const roomId = generateId(6);
 	GameRooms.set(roomId, room);
 	ws.data = { name, roomId };
 
