@@ -1,4 +1,5 @@
 import {
+	ChatMode,
 	GameStatus,
 	type GameType,
 	type Player,
@@ -130,10 +131,10 @@ class GameRoom {
 	}
 
 	// validate the word
-	vallidateWord(word: string): boolean {
+	vallidateWord(word: string): ChatMode {
 		if (this._status === GameStatus.IN_MATCH)
-			if (this.word && this.word === word) return true;
-		return false;
+			if (this.word && this.word === word) return ChatMode.GUESS_CORRECT;
+		return ChatMode.NORMAL;
 	}
 
 	// TODO: remove log method when all the variable are in use

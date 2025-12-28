@@ -11,7 +11,7 @@ import {
 type MatchUtils =
 	| {
 			isDrawer: true;
-			choices?: Array<string>;
+			choices?: string[];
 			word?: string;
 	  }
 	| { isDrawer: false; drawerName?: string; hiddenWord?: string };

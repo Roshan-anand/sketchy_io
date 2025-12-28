@@ -40,13 +40,19 @@ export type Setting = {
 	hints: number;
 };
 
+export enum ChatMode {
+	SYSTEM,
+	GUESS_CORRECT,
+	NORMAL,
+}
+
 export type ChatMsg = {
 	name: string;
 	msg: string;
-	isValid: boolean;
+	mode: ChatMode;
 };
 
-type choiceData =
+export type choiceData =
 	| {
 			isDrawer: true;
 			choices: string[];
@@ -56,7 +62,7 @@ type choiceData =
 			drawerName: string;
 	  };
 
-type startMatchData =
+export type startMatchData =
 	| {
 			isDrawer: true;
 			word: string;

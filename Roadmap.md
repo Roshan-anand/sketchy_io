@@ -24,6 +24,8 @@
 - [ ] F17: Score calculation and display
 - [ ] F18: Game end screen with winner announcement
 - [ ] F19: Players settings
+- [ ] F20: Sound effects and background music
+- [ ] F21: Ban functionality
 
 ## Out of box **[ discussen needed ]**
 

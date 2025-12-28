@@ -1,11 +1,13 @@
 import { type ComponentProps, useEffect, useRef, useState } from "react";
-import type { ChatMsg } from "@/lib/types";
+import { ChatMode, type ChatMsg } from "@/lib/types";
 import { cn, socketConErr } from "@/lib/utils";
+import useGameStore from "@/store/gameStore";
 import useSocketStore from "@/store/socketStore";
 import { Input } from "../ui/input";
 
 export function PlayerInput({ className }: ComponentProps<"section">) {
 	const { socket } = useSocketStore();
+	const { matchUtils } = useGameStore();
 	const [chatMsgs, setChatMsgs] = useState<ChatMsg[]>([]);
 
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -33,12 +35,12 @@ export function PlayerInput({ className }: ComponentProps<"section">) {
 				ref={listRef}
 				className="max-h-48 overflow-y-auto mb-2 flex flex-col gap-1"
 			>
-				{chatMsgs.map(({ msg, name, isValid }, i) => {
+				{chatMsgs.map(({ msg, name, mode }, i) => {
 					const key = `${i}-${name}`;
 					return (
 						<li
 							key={key}
-							className={`flex gap-1 items-center ${isValid && " bg-green-500/20 "}`}
+							className={`flex gap-1 items-center px-1 rounded-sm ${mode === ChatMode.GUESS_CORRECT && " bg-green-500/20 "} ${mode === ChatMode.SYSTEM && "bg-primary/30 text-primary "} `}
 						>
 							<span className="font-bold">{name} :</span>
 							<span>{msg}</span>
@@ -48,6 +50,7 @@ export function PlayerInput({ className }: ComponentProps<"section">) {
 			</ul>
 			<span className="flex items-center p-1 gap-2">
 				<Input
+					disabled={matchUtils.isDrawer}
 					onKeyDown={(e) => {
 						if (e.key !== "Enter") return;
 

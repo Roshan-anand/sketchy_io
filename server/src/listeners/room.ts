@@ -1,6 +1,11 @@
 import { GameRoom } from "../config/gameRoom";
-import { GameRooms } from "../config/socket";
-import { GameType, type Player, type TypedScoket } from "../lib/types";
+import { GameRooms, io } from "../config/socket";
+import {
+	ChatMode,
+	GameType,
+	type Player,
+	type TypedScoket,
+} from "../lib/types";
 import { generateId } from "../lib/utils";
 import { broadcastTotalMembers, emitErr } from "./utils";
 
@@ -44,6 +49,11 @@ export const joinRoom = (ws: TypedScoket, name: string, roomId: string) => {
 	ws.data = { name, roomId };
 
 	broadcastTotalMembers(roomId);
+	io.to(roomId).emit("chatMsg", {
+		name: "system",
+		msg: `${ws.data.name} joined the game`,
+		mode: ChatMode.SYSTEM,
+	});
 	ws.emit("roomJoined", roomId, room.getAllPlayers());
 	ws.join(roomId);
 };

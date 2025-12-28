@@ -27,7 +27,9 @@ function DrawingBoard() {
 	return (
 		<CardContent>
 			<header className="flex justify-center">
-				{matchUtils.isDrawer ? matchUtils.word : matchUtils.hiddenWord}
+				{matchUtils.isDrawer
+					? matchUtils.word
+					: matchUtils.hiddenWord?.split("").join("  ")}
 			</header>
 		</CardContent>
 	);
@@ -49,12 +51,8 @@ function CanvaUtils() {
 										key={word}
 										variant={"outline"}
 										onClick={() => {
-											if (!socket) {
-												socketConErr();
-												return;
-											}
-
-											socket.emit("choiceMade", word);
+											if (!socket) socketConErr();
+											else socket.emit("choiceMade", word);
 										}}
 									>
 										{word}

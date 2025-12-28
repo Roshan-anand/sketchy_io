@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import {
+	ChatMode,
 	GameEntryType,
 	type TypedIo,
 	type TypedScoket,
@@ -35,6 +36,11 @@ io.on("connection", (socket: TypedScoket) => {
 			room.removePlayer(socketId);
 			socket.leave(roomId);
 			broadcastTotalMembers(roomId);
+			io.to(roomId).emit("chatMsg", {
+				name: "system",
+				msg: `${socket.data.name} left the game`,
+				mode: ChatMode.SYSTEM,
+			});
 			// if room is empty, delete it
 			if (room.playerCount === 0) GameRooms.delete(roomId);
 		}

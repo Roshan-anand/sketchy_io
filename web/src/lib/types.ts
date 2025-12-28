@@ -42,10 +42,16 @@ export type Setting = {
 	hints: number;
 };
 
+export enum ChatMode {
+	SYSTEM,
+	GUESS_CORRECT,
+	NORMAL,
+}
+
 export type ChatMsg = {
 	name: string;
 	msg: string;
-	isValid: boolean;
+	mode: ChatMode;
 };
 
 export type choiceData =
