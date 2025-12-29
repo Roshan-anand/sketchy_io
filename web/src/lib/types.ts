@@ -43,6 +43,10 @@ export type Setting = {
 	hints: number;
 };
 
+export type OneSetting = {
+	[K in keyof Setting]: { [P in K]: Setting[P] };
+}[keyof Setting];
+
 export enum ChatMode {
 	SYSTEM_INFO,
 	SYSTEM_SUCCESS,
@@ -78,6 +82,7 @@ export type startMatchData =
 type ClientSentEvents = {
 	startGame: (settings: Setting) => void;
 	chatMsg: (msg: string) => void;
+	updateSettings: (setting: OneSetting) => void;
 	choiceMade: (choice: string) => void;
 };
 
@@ -86,6 +91,7 @@ type ServerSentEvents = {
 	roomJoined: (roomId: string, players: Player[]) => void;
 	roomCreated: (roomId: string, players: Player[]) => void;
 	chatMsg: (msg: ChatMsg) => void;
+	updateSettings: (setting: OneSetting) => void;
 	roomMembers: (players: Player[]) => void;
 	roundInfo: (round: number) => void;
 	choosing: (data: choiceData) => void;

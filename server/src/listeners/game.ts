@@ -27,6 +27,16 @@ export const gameListeners = (ws: TypedScoket) => {
 		});
 	});
 
+	ws.on("updateSettings", (setting) => {
+		const room = GameRooms.get(ws.data.roomId);
+		if (!room) {
+			emitErr(ws, "You are not in a valid room.");
+			return;
+		}
+		room.oneSetting = setting;
+		ws.to(ws.data.roomId).emit("updateSettings", setting);
+	});
+
 	// to start the game
 	ws.on("startGame", async (settings) => {
 		const room = GameRooms.get(ws.data.roomId);
@@ -34,8 +44,7 @@ export const gameListeners = (ws: TypedScoket) => {
 			emitErr(ws, "You are not in a valid room.");
 			return;
 		}
-		room.settings = settings;
-		room.startGame();
+		room.startGame(settings);
 	});
 
 	// to handle choice made by drawer

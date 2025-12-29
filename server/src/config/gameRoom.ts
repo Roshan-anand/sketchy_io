@@ -2,6 +2,7 @@ import {
 	ChatMode,
 	GameStatus,
 	type GameType,
+	type OneSetting,
 	type Player,
 	type Setting,
 } from "../lib/types";
@@ -12,7 +13,7 @@ class GameRoom {
 	private roomId: string;
 	private type: GameType;
 	private status: GameStatus;
-	private _settings: Setting;
+	private settings: Setting;
 	private players: Map<string, Player>;
 	private round: number;
 
@@ -31,7 +32,7 @@ class GameRoom {
 		this.type = type;
 		this.players = new Map();
 		this.status = GameStatus.WAITING;
-		this._settings = {
+		this.settings = {
 			totalPlayers: 8,
 			maxRounds: 3,
 			drawTime: 80,
@@ -48,13 +49,16 @@ class GameRoom {
 	}
 
 	/** update the game settings */
-	set settings(settings: Setting) {
-		this._settings = settings;
+	set oneSetting(setting: OneSetting) {
+		this.settings = {
+			...this.settings,
+			...setting,
+		};
 	}
 
 	/** add a player to the room */
 	addPlayer(player: Player) {
-		const isEmpty = this.playerCount < this._settings.totalPlayers;
+		const isEmpty = this.playerCount < this.settings.totalPlayers;
 		if (isEmpty) this.players.set(player.id, player);
 		return isEmpty;
 	}
@@ -129,7 +133,7 @@ class GameRoom {
 		// eg. "apple pie" => "_____ ___"
 		this.hiddenWord = "_".repeat(word.length);
 
-		const time = this._settings.drawTime;
+		const time = this.settings.drawTime;
 		// emit start match
 		io.to(drawerId).emit("startMatch", { isDrawer: true, word }, time);
 		io.to(this.roomId)
@@ -144,7 +148,7 @@ class GameRoom {
 		// set match timeout
 		this.matchTimeOutId = setTimeout(
 			() => this.endMatch(),
-			this._settings.drawTime * 1000,
+			this.settings.drawTime * 1000,
 		);
 	}
 
@@ -153,7 +157,7 @@ class GameRoom {
 		this.round++;
 		this.remainingPlayers = [];
 
-		if (this.round === this._settings.maxRounds) {
+		if (this.round === this.settings.maxRounds) {
 			// TODO : end the game, because all rounds are over
 		} else this.startRound();
 	}
@@ -169,7 +173,8 @@ class GameRoom {
 	}
 
 	/** starts the game */
-	startGame() {
+	startGame(settings: Setting) {
+		this.settings = settings;
 		this.status = GameStatus.IN_PROGRESS;
 		this.round = 1;
 		this.startRound();
@@ -198,7 +203,7 @@ class GameRoom {
 
 	// TODO: remove log method when all the variable are in use
 	log() {
-		console.log(this._settings, this.type, this.matchTimeOutId, this.drawerId);
+		console.log(this.settings, this.type, this.matchTimeOutId, this.drawerId);
 	}
 }
 

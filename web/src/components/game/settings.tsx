@@ -1,5 +1,5 @@
 import { Copy } from "lucide-react";
-import { useRef } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import {
 	Select,
@@ -8,7 +8,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import type { Setting } from "@/lib/types";
+import type { OneSetting, Setting } from "@/lib/types";
 import { socketConErr } from "@/lib/utils";
 import useGameStore from "@/store/gameStore";
 import useSocketStore from "@/store/socketStore";
@@ -16,35 +16,43 @@ import { Button } from "../ui/button";
 import { CardContent, CardFooter } from "../ui/card";
 import { Label } from "../ui/label";
 
+type Options = {
+	name: string;
+	values: string[];
+	key: keyof Setting;
+};
+
 export function GameSettings() {
 	const { roomId, players, isHost } = useGameStore();
 	const { socket } = useSocketStore();
 
-	const playersCount = useRef<string>("8");
-	const roundsCount = useRef<string>("3");
-	const drawTime = useRef<string>("80");
-	const hintsCount = useRef<string>("2");
+	const [settings, setSettings] = useState<Setting>({
+		totalPlayers: 8,
+		maxRounds: 3,
+		drawTime: 80,
+		hints: 2,
+	});
 
-	const options = [
+	const options: Options[] = [
 		{
-			input: playersCount,
-			lable: "Total Players",
+			name: "Total Players",
 			values: ["4", "6", "8", "10", "12"],
+			key: "totalPlayers",
 		},
 		{
-			input: roundsCount,
-			lable: "Max Rounds",
+			name: "Max Rounds",
 			values: ["2", "3", "4", "5", "6"],
+			key: "maxRounds",
 		},
 		{
-			input: drawTime,
-			lable: "Draw Time (s)",
+			name: "Draw Time (s)",
 			values: ["10", "60", "80", "100", "120", "150"],
+			key: "drawTime",
 		},
 		{
-			input: hintsCount,
-			lable: "Hints",
+			name: "Hints",
 			values: ["1", "2", "3", "4", "5"],
+			key: "hints",
 		},
 	];
 
@@ -54,13 +62,6 @@ export function GameSettings() {
 			toast.error("At least 2 players are required to start the game.");
 			return;
 		}
-
-		const settings: Setting = {
-			totalPlayers: parseInt(playersCount.current, 10),
-			maxRounds: parseInt(roundsCount.current, 10),
-			drawTime: parseInt(drawTime.current, 10),
-			hints: parseInt(hintsCount.current, 10),
-		};
 
 		if (!socket) socketConErr();
 		else socket.emit("startGame", settings);
@@ -77,19 +78,38 @@ export function GameSettings() {
 		}
 	};
 
+	useEffect(() => {
+		if (!socket) return;
+		socket.on("updateSettings", (setting) => {
+			setSettings((prev) => ({
+				...prev,
+				...setting,
+			}));
+		});
+		return () => {};
+	}, [socket]);
+
 	return (
 		<>
 			<CardContent className="flex flex-wrap">
-				{options.map(({ input, lable, values }) => (
+				{options.map(({ name, values, key }) => (
 					<div
-						key={lable}
+						key={key}
 						className="w-1/2 flex items-center justify-between p-2"
 					>
-						<Label>{lable} :</Label>
+						<Label>{name} :</Label>
 						<Select
-							defaultValue={input.current}
+							value={settings[key].toString()}
 							onValueChange={(value) => {
-								if (input.current) input.current = value;
+								setSettings((prev) => ({
+									...prev,
+									[key]: parseInt(value, 10),
+								}));
+
+								if (socket)
+									socket.emit("updateSettings", {
+										[key]: parseInt(value, 10),
+									} as OneSetting);
 							}}
 						>
 							<SelectTrigger className="w-1/2" disabled={!isHost}>
@@ -116,7 +136,6 @@ export function GameSettings() {
 					Start
 				</Button>
 				<Button
-					disabled={!isHost}
 					onClick={handleCopy}
 					className="flex-1 flex items-center gap-2 p-1"
 				>
