@@ -8,7 +8,7 @@ import { Input } from "../ui/input";
 
 export function PlayerInput({ className }: ComponentProps<"section">) {
 	const { socket } = useSocketStore();
-	const { matchUtils } = useGameStore();
+	const { matchUtils, canType, setGuessed } = useGameStore();
 	const [chatMsgs, setChatMsgs] = useState<ChatMsg[]>([]);
 
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -25,10 +25,12 @@ export function PlayerInput({ className }: ComponentProps<"section">) {
 			if (!list) return;
 			list.scrollTop = list.scrollHeight;
 		});
+
+		socket.on("guessed", (word) => setGuessed(word));
 		return () => {
 			socket.off("chatMsg");
 		};
-	}, [socket]);
+	}, [socket, setGuessed]);
 
 	return (
 		<Card className={cn("border rounded-md ", className)}>
@@ -42,9 +44,11 @@ export function PlayerInput({ className }: ComponentProps<"section">) {
 						return (
 							<li
 								key={key}
-								className={`flex gap-1 items-center px-1 rounded-sm ${mode === ChatMode.GUESS_CORRECT && " bg-green-500/20 "} ${mode === ChatMode.SYSTEM && "bg-primary/30 text-primary "} `}
+								className={`flex gap-1 items-center px-1 rounded-sm ${mode === ChatMode.SYSTEM_SUCCESS && " bg-green-500/20 text-green-500"} ${mode === ChatMode.SYSTEM_INFO && "bg-amber-400/20 text-amber-400 "} `}
 							>
-								<span className="font-bold">{name} :</span>
+								{mode === ChatMode.NORMAL && (
+									<span className="font-bold">{name} :</span>
+								)}
 								<span>{msg}</span>
 							</li>
 						);
@@ -53,7 +57,7 @@ export function PlayerInput({ className }: ComponentProps<"section">) {
 			</CardContent>
 			<CardFooter>
 				<Input
-					disabled={matchUtils.isDrawer}
+					disabled={matchUtils.isDrawer || !canType}
 					onKeyDown={(e) => {
 						if (e.key !== "Enter") return;
 

@@ -1,5 +1,5 @@
 import { GameRooms, io } from "../config/socket";
-import type { TypedScoket } from "../lib/types";
+import { ChatMode, type TypedScoket } from "../lib/types";
 import { emitErr } from "./utils";
 
 export const gameListeners = (ws: TypedScoket) => {
@@ -14,6 +14,11 @@ export const gameListeners = (ws: TypedScoket) => {
 
 		// check if the msg is the correct word
 		const mode = room.vallidateWord(msg, ws.id);
+
+		if (mode === ChatMode.SYSTEM_SUCCESS) {
+			ws.emit("guessed", msg); // notify the guesser that they have guessed correctly
+			msg = `${name} guessed the word`;
+		}
 
 		io.in(roomId).emit("chatMsg", {
 			name,

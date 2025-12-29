@@ -37,9 +37,9 @@ io.on("connection", (socket: TypedScoket) => {
 			socket.leave(roomId);
 			broadcastTotalMembers(roomId);
 			io.to(roomId).emit("chatMsg", {
-				name: "system",
+				name: "System",
 				msg: `${socket.data.name} left the game`,
-				mode: ChatMode.SYSTEM,
+				mode: ChatMode.SYSTEM_INFO,
 			});
 			// if room is empty, delete it
 			if (room.playerCount === 0) GameRooms.delete(roomId);

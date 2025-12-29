@@ -30,9 +30,11 @@ type Store = {
 		players: Player[],
 	) => void;
 	canvaState: CanvaState;
+	canType: boolean; // to control if the player can type in chat
 	round: number;
 	matchUtils: MatchUtils;
 	matchTimer: number;
+	setGuessed: (word: string) => void;
 	updateRound: (round: number) => void;
 	setChoosingInfo: (data: choiceData) => void;
 	setMatchInfo: (matchInfo: startMatchData, time: number) => void;
@@ -52,9 +54,21 @@ const useGameStore = create<Store>()((set, get) => ({
 
 	// to handle the match
 	canvaState: CanvaState.SETTINGS,
+	canType: true,
 	round: 0,
 	matchUtils: { isDrawer: false },
 	matchTimer: 0,
+	setGuessed: (word) => {
+		// const {matchUtils} = get()
+		set({
+			canType: false,
+			matchUtils: {
+				// ...matchUtils,
+				isDrawer: false,
+				hiddenWord: word,
+			},
+		});
+	},
 	updateRound: (round) => set({ round, canvaState: CanvaState.ROUND }),
 	setChoosingInfo: (data) => {
 		const { matchUtils } = get();
@@ -74,6 +88,7 @@ const useGameStore = create<Store>()((set, get) => ({
 	},
 	setEndMatch: () =>
 		set({
+			canType: true,
 			gameState: GameState.WAITING,
 			matchUtils: { isDrawer: false },
 			matchTimer: 0,

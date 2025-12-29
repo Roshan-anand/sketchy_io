@@ -6,7 +6,6 @@
 - [ ] F2: New public room if full or no room
 - [ ] F3: Avatar customization options **[ medium, ui ]**
 - [ ] F4: Random avatar generator **[ easy, ui ]**
-{{REWRITTEN_CODE}}
 - [ ] F5: Footer section having intro and rules **[ easy, ui ]**
 
 ## In game
@@ -60,3 +59,4 @@
       - end the match with 0 score for everyone
 - [ ] P3: what if all players left leaving one in the room during the match?
       - declare that player as winner and end the game
+- [ ] P4: what if a player disconnects and all other players guessed the word?

@@ -44,8 +44,8 @@ export type Setting = {
 };
 
 export enum ChatMode {
-	SYSTEM,
-	GUESS_CORRECT,
+	SYSTEM_INFO,
+	SYSTEM_SUCCESS,
 	NORMAL,
 }
 
@@ -90,6 +90,7 @@ type ServerSentEvents = {
 	roundInfo: (round: number) => void;
 	choosing: (data: choiceData) => void;
 	startMatch: (matchInfo: startMatchData, time: number) => void;
+	guessed: (word: string) => void;
 	reduceTime: (timeLeft: number) => void;
 	endMatch: () => void;
 };

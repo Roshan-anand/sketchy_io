@@ -191,7 +191,7 @@ class GameRoom {
 		if (this.status === GameStatus.IN_MATCH && !this.correctGuessers.has(wsId))
 			if (this.word && this.word === word) {
 				this.evaluateScore(wsId);
-				return ChatMode.GUESS_CORRECT;
+				return ChatMode.SYSTEM_SUCCESS;
 			}
 		return ChatMode.NORMAL;
 	}
