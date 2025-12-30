@@ -1,11 +1,6 @@
 import { GameRoom } from "../config/gameRoom";
 import { GameRooms, io } from "../config/socket";
-import {
-	ChatMode,
-	GameType,
-	type Player,
-	type TypedScoket,
-} from "../lib/types";
+import { ChatMode, GameType, type TypedScoket } from "../lib/types";
 import { generateId } from "../lib/utils";
 import { broadcastTotalMembers, emitErr } from "./utils";
 
@@ -45,7 +40,7 @@ export const joinRoom = (ws: TypedScoket, name: string, roomId: string) => {
 	}
 
 	// else join the user to the room
-	const joined = room.addPlayer({ name, score: 0, id: ws.id });
+	const joined = room.addPlayer({ id: ws.id, name });
 
 	if (!joined) {
 		emitErr(ws, "room is full");
@@ -59,22 +54,16 @@ export const joinRoom = (ws: TypedScoket, name: string, roomId: string) => {
 	io.to(roomId).emit("chatMsg", {
 		name: "system",
 		msg: `${ws.data.name} joined the game`,
-		mode: ChatMode.SYSTEM,
+		mode: ChatMode.SYSTEM_INFO,
 	});
 	ws.emit("roomJoined", roomId, room.getAllPlayers());
 	ws.join(roomId);
 };
 
 export const createRoom = (ws: TypedScoket, name: string) => {
-	const player: Player = {
-		name,
-		score: 0,
-		id: ws.id,
-	};
-
 	const roomId = generateId(6);
 	const room = new GameRoom(GameType.PRIVATE, roomId); // create a private room instance
-	room.addPlayer(player);
+	room.addPlayer({ id: ws.id, name });
 
 	GameRooms.set(roomId, room);
 	ws.data = { name, roomId };

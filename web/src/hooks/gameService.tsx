@@ -4,7 +4,7 @@ import useSocketStore from "@/store/socketStore";
 
 const useGameService = () => {
 	const { socket } = useSocketStore();
-	const { updateRound, setChoosingInfo, setMatchInfo, setEndMatch } =
+	const { updateRound, setChoosingInfo, setStartMatch, setEndMatch } =
 		useGameStore();
 
 	useEffect(() => {
@@ -12,8 +12,10 @@ const useGameService = () => {
 
 		socket.on("roundInfo", (round) => updateRound(round));
 		socket.on("choosing", (data) => setChoosingInfo(data));
-		socket.on("startMatch", (matchInfo, time) => setMatchInfo(matchInfo, time));
-		socket.on("endMatch", () => setEndMatch());
+		socket.on("startMatch", (matchInfo, time) =>
+			setStartMatch(matchInfo, time),
+		);
+		socket.on("endMatch", (scoreBoard) => setEndMatch(scoreBoard));
 
 		return () => {
 			socket.off("roundInfo");
@@ -21,7 +23,7 @@ const useGameService = () => {
 			socket.off("startMatch");
 			socket.off("endMatch");
 		};
-	}, [socket, updateRound, setChoosingInfo, setMatchInfo, setEndMatch]);
+	}, [socket, updateRound, setChoosingInfo, setStartMatch, setEndMatch]);
 };
 
 export default useGameService;

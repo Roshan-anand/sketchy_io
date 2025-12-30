@@ -10,15 +10,13 @@
 
 ## In game
 
-- [ ] F6: All players list with scores **[ easy, ui ]**
 - [ ] F7: Sort players by score **[ easy ]**
+- [ ] F8: (placeholder) — see Task breakdown
 - [ ] F9: Real-time canvas
 - [ ] F10: Drawing tools (colors, brush size, eraser)
 - [ ] F11: Undo/Redo functionality
-- [ ] F13: Hint after few seconds
 - [ ] F12: Score system based on time and number of players guessed
-- [ ] F14: Score calculation and display
-- [ ] F15: Game end screen with winner announcement
+- [ ] F13: Hint after few seconds
 - [ ] F16: Players settings
 - [ ] F17: Sound effects and background music
 - [ ] F18: Ban functionality
@@ -37,8 +35,12 @@
 # Task breakdown
 
 - [ ] F6: Game room settings
-  - [ ] T1: Real Time changes
-  - [ ] T2: Custom words
+  - [ ] T1: Custom words
+
+- [ ] F14: Score calculation and display
+  - [ ] T1: evaluate score based on time taken and guessed position
+  - [ ] T2: evaluate score for the drawer based on number of players guessed and time taken
+
 - [ ] F15: Timer for each round
   - [ ] T1: if certain percent of players guessed correctly then decrease the time for others
 

@@ -23,23 +23,14 @@ export function GameCanva({ className }: ComponentProps<"div">) {
 }
 
 function DrawingBoard() {
-	const { matchUtils } = useGameStore();
-	return (
-		<CardContent>
-			<header className="flex justify-center">
-				{matchUtils.isDrawer
-					? matchUtils.word
-					: matchUtils.hiddenWord?.split("").join("  ")}
-			</header>
-		</CardContent>
-	);
+	return <CardContent>draw here</CardContent>;
 }
 
 function CanvaUtils() {
-	const { canvaState, round, matchUtils } = useGameStore();
+	const { canvaState, round, matchUtils, scoreBoard } = useGameStore();
 	const { socket } = useSocketStore();
 	return (
-		<CardContent className="flex justify-center items-center flex-1">
+		<CardContent className="flex flex-col justify-center items-center flex-1">
 			{canvaState === CanvaState.CHOOSE && (
 				<h1>
 					{matchUtils.isDrawer ? (
@@ -66,7 +57,25 @@ function CanvaUtils() {
 				</h1>
 			)}
 			{canvaState === CanvaState.ROUND && <h1>Round {round}</h1>}
-			{canvaState === CanvaState.SCORE_BOARD && <h1>Score Board</h1>}
+			{canvaState === CanvaState.SCORE_BOARD && (
+				<>
+					<h3>Score Board</h3>
+					<ul>
+						{scoreBoard.scores.map(({ name, score }, i) => {
+							const key = `${name}+${i}`;
+							return (
+								<li className="flex gap-2" key={key}>
+									<p>{name} : </p>
+									<p className={score > 0 ? "text-green-500" : ""}>
+										{score > 0 && "+ "}
+										{score}
+									</p>
+								</li>
+							);
+						})}
+					</ul>
+				</>
+			)}
 		</CardContent>
 	);
 }

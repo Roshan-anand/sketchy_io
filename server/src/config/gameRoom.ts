@@ -57,9 +57,9 @@ class GameRoom {
 	}
 
 	/** add a player to the room */
-	addPlayer(player: Player) {
+	addPlayer({ id, name }: { id: string; name: string }) {
 		const isEmpty = this.playerCount < this.settings.totalPlayers;
-		if (isEmpty) this.players.set(player.id, player);
+		if (isEmpty) this.players.set(id, { id, name, score: 0 });
 		return isEmpty;
 	}
 
@@ -80,14 +80,24 @@ class GameRoom {
 		// set status back to in progress, so no more eveluation happens
 		this.status = GameStatus.IN_PROGRESS;
 
+		// TODO: calculate score for drawer based on the number of correct guessers
+		const drawerScore = 10;
+		this.correctGuessers.set(this.drawerId as string, drawerScore);
+
+		const scores: Player[] = [];
+
 		// update the scores
-		this.correctGuessers.forEach((score, playerId) => {
-			const player = this.players.get(playerId);
-			if (player) player.score += score;
+		this.players.forEach((player) => {
+			const currentScore = this.correctGuessers.get(player.id) || 0;
+			scores.push({ ...player, score: currentScore });
+			player.score += currentScore;
 		});
 
 		// emit the score list with correct word
-		io.to(this.roomId).emit("endMatch");
+		io.to(this.roomId).emit("endMatch", { scores, word: this.word as string });
+
+		// emit updated scores
+		io.to(this.roomId).emit("roomMembers", this.getAllPlayers());
 
 		// set match information to default
 		this.drawerId = undefined;
@@ -96,7 +106,7 @@ class GameRoom {
 		this.matchTimeOutId = undefined;
 		this.correctGuessers.clear();
 
-		await Bun.sleep(3000);
+		await Bun.sleep(5000);
 
 		if (this.remainingPlayers.length !== 0) this.chooseDrawer();
 		else this.endRound(); // if all players have drawn, end the round
@@ -180,10 +190,14 @@ class GameRoom {
 		this.startRound();
 	}
 
-	// provide score
-	private async evaluateScore(guesserId: string) {
+	/** evaluates the score for the give player id */
+	private evaluateScore(id: string) {
+		const player = this.players.get(id);
+		if (!player) return;
+
 		// TODO : calculate score based on time taken and place of guess
-		this.correctGuessers.set(guesserId, 10);
+		this.correctGuessers.set(player.id, 10);
+
 		// TODO : check if all players have guessed correctly so we can end the match early
 		if (this.correctGuessers.size === this.playerCount - 1) {
 			clearTimeout(this.matchTimeOutId);
@@ -191,14 +205,25 @@ class GameRoom {
 		}
 	}
 
-	// validate the word
-	vallidateWord(word: string, wsId: string): ChatMode {
+	/** vallidate the word guessed by a player */
+	validateWord(msg: string, name: string, wsId: string) {
+		let mode = ChatMode.NORMAL;
+
 		if (this.status === GameStatus.IN_MATCH && !this.correctGuessers.has(wsId))
-			if (this.word && this.word === word) {
-				this.evaluateScore(wsId);
-				return ChatMode.SYSTEM_SUCCESS;
+			if (this.word && this.word === msg) {
+				io.to(wsId).emit("guessed", msg); // notify the guesser that they have guessed correctly
+				msg = `${name} guessed the word`;
+				mode = ChatMode.SYSTEM_SUCCESS;
 			}
-		return ChatMode.NORMAL;
+
+		io.in(this.roomId).emit("chatMsg", {
+			name,
+			msg,
+			mode,
+		});
+
+		// evaluating later so that emit happens first
+		if (mode === ChatMode.SYSTEM_SUCCESS) this.evaluateScore(wsId);
 	}
 
 	// TODO: remove log method when all the variable are in use

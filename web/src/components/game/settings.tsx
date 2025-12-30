@@ -46,7 +46,7 @@ export function GameSettings() {
 		},
 		{
 			name: "Draw Time (s)",
-			values: ["10", "60", "80", "100", "120", "150"],
+			values: ["15", "60", "80", "100", "120", "150"],
 			key: "drawTime",
 		},
 		{

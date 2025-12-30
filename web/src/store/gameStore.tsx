@@ -4,6 +4,7 @@ import {
 	type choiceData,
 	GameState,
 	type Player,
+	type ScoreBoard,
 	type startMatchData,
 } from "@/lib/types";
 
@@ -34,11 +35,12 @@ type Store = {
 	round: number;
 	matchUtils: MatchUtils;
 	matchTimer: number;
+	scoreBoard: ScoreBoard;
 	setGuessed: (word: string) => void;
 	updateRound: (round: number) => void;
 	setChoosingInfo: (data: choiceData) => void;
-	setMatchInfo: (matchInfo: startMatchData, time: number) => void;
-	setEndMatch: () => void;
+	setStartMatch: (matchInfo: startMatchData, time: number) => void;
+	setEndMatch: (scoreBoard: ScoreBoard) => void;
 };
 
 const useGameStore = create<Store>()((set, get) => ({
@@ -58,41 +60,36 @@ const useGameStore = create<Store>()((set, get) => ({
 	round: 0,
 	matchUtils: { isDrawer: false },
 	matchTimer: 0,
-	setGuessed: (word) => {
-		// const {matchUtils} = get()
+	scoreBoard: { scores: [], word: "" },
+	setGuessed: (word) =>
 		set({
 			canType: false,
 			matchUtils: {
-				// ...matchUtils,
+				...get().matchUtils,
 				isDrawer: false,
 				hiddenWord: word,
 			},
-		});
-	},
+		}),
 	updateRound: (round) => set({ round, canvaState: CanvaState.ROUND }),
-	setChoosingInfo: (data) => {
-		const { matchUtils } = get();
+	setChoosingInfo: (data) =>
 		set({
-			matchUtils: { ...matchUtils, ...data },
+			matchUtils: { ...get().matchUtils, ...data },
 			canvaState: CanvaState.CHOOSE,
-		});
-	},
-	setMatchInfo: (matchInfo, time) => {
-		const { matchUtils } = get();
+		}),
+	setStartMatch: (matchInfo, time) =>
 		set({
 			gameState: GameState.PLAYING,
-			matchUtils: { ...matchUtils, ...matchInfo },
+			matchUtils: { ...get().matchUtils, ...matchInfo },
 			matchTimer: time,
 			canvaState: CanvaState.DRAW,
-		});
-	},
-	setEndMatch: () =>
+		}),
+	setEndMatch: (scoreBoard) =>
 		set({
 			canType: true,
-			gameState: GameState.WAITING,
 			matchUtils: { isDrawer: false },
 			matchTimer: 0,
 			canvaState: CanvaState.SCORE_BOARD,
+			scoreBoard,
 		}),
 }));
 

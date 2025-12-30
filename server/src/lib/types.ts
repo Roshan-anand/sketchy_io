@@ -29,9 +29,14 @@ export enum GameStatus {
 }
 
 export type Player = {
+	id: string;
 	name: string;
 	score: number;
-	id: string;
+};
+
+export type ScoreBoard = {
+	word: string;
+	scores: Player[];
 };
 
 export type Setting = {
@@ -96,7 +101,7 @@ type ServerSentEvents = {
 	startMatch: (matchInfo: startMatchData, time: number) => void;
 	guessed: (word: string) => void;
 	reduceTime: (timeLeft: number) => void;
-	endMatch: () => void;
+	endMatch: (scoreBoard: ScoreBoard) => void;
 };
 
 type SocketData = {
