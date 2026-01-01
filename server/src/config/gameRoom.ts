@@ -10,9 +10,9 @@ import { GameTimer } from "./gameTimer";
 import { io } from "./socket";
 
 type DurationList = {
-	thirty: number;
-	sixty: number;
-	ninety: number;
+	seventy: number;
+	fourty: number;
+	ten: number;
 };
 
 export class GameRoom {
@@ -54,9 +54,9 @@ export class GameRoom {
 		this.correctGuessers = new Map();
 		this.gameTimer = new GameTimer();
 		this.durationPercent = {
-			thirty: 0,
-			sixty: 0,
-			ninety: 0,
+			seventy: 0,
+			fourty: 0,
+			ten: 0,
 		};
 	}
 
@@ -92,6 +92,13 @@ export class GameRoom {
 		return players;
 	}
 
+	/** get percentage of players remaining to guess */
+	private getPlayerPercent(type: "guessed" | "notGuessed") {
+		if (type === "guessed")
+			return (this.correctGuessers.size / (this.playerCount - 1)) * 100;
+		else return (1 - this.correctGuessers.size / (this.playerCount - 1)) * 100;
+	}
+
 	/** remove a player from the room */
 	removePlayer(playerId: string) {
 		this.players.delete(playerId);
@@ -103,8 +110,10 @@ export class GameRoom {
 		this.status = GameStatus.IN_PROGRESS;
 
 		// TODO: calculate score for drawer based on the number of correct guessers
-		const drawerScore = 10;
-		this.correctGuessers.set(this.drawerId as string, drawerScore);
+		this.correctGuessers.set(
+			this.drawerId as string,
+			this.getPlayerPercent("guessed"),
+		);
 
 		const scores: Player[] = [];
 
@@ -220,9 +229,9 @@ export class GameRoom {
 		this.status = GameStatus.IN_PROGRESS;
 		const duration = this.settings.drawTime;
 		this.durationPercent = {
-			thirty: Math.floor(duration * 0.9),
-			sixty: Math.floor(duration * 0.6),
-			ninety: Math.floor(duration * 0.3),
+			seventy: Math.floor(duration * 0.72),
+			fourty: Math.floor(duration * 0.42),
+			ten: Math.floor(duration * 0.12),
 		};
 		this.round = 1;
 		this.startRound();
@@ -251,9 +260,11 @@ export class GameRoom {
 		const player = this.players.get(wsId);
 		if (!player) return;
 
-		// TODO : calculate score based on time taken and place of guess
-		// use gameTimer.getTimeLeft() to get time left in seconds
-		this.correctGuessers.set(player.id, 10);
+		// TODO : make a better logic for score calculation
+		this.correctGuessers.set(
+			player.id,
+			Math.ceil(this.getPlayerPercent("notGuessed")),
+		);
 
 		// end the match early if all players have guessed correctly
 		if (this.correctGuessers.size === this.playerCount - 1) {
@@ -262,24 +273,17 @@ export class GameRoom {
 		} else {
 			// TODO : find a better way to handle reduce timer logic
 			// reduce the time
-			const guessedPercent =
-				(this.correctGuessers.size / (this.playerCount - 1)) * 100;
+			const notGuessed = this.getPlayerPercent("notGuessed");
+
 			const timeLeft = this.gameTimer.getTimeLeft();
 			let newTime: number | undefined;
-			console.log(
-				"guessed :",
-				this.correctGuessers.size,
-				" players :",
-				this.playerCount - 1,
-				" percent : ",
-				guessedPercent,
-			);
-			if (guessedPercent >= 90 && timeLeft > this.durationPercent.ninety)
-				newTime = this.durationPercent.ninety;
-			else if (guessedPercent >= 66 && timeLeft > this.durationPercent.sixty)
-				newTime = this.durationPercent.sixty;
-			else if (guessedPercent >= 33 && timeLeft > this.durationPercent.thirty)
-				newTime = this.durationPercent.thirty;
+
+			if (notGuessed <= 70 && timeLeft > this.durationPercent.seventy)
+				newTime = this.durationPercent.seventy;
+			else if (notGuessed <= 40 && timeLeft > this.durationPercent.fourty)
+				newTime = this.durationPercent.fourty;
+			else if (notGuessed <= 10 && timeLeft > this.durationPercent.ten)
+				newTime = this.durationPercent.ten;
 
 			if (newTime) {
 				io.to(this.roomId).emit("reduceTime", newTime);
