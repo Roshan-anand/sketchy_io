@@ -6,9 +6,10 @@ import {
 	type Player,
 	type Setting,
 } from "../lib/types";
+import { GameTimer } from "./gameTimer";
 import { io } from "./socket";
 
-class GameRoom {
+export class GameRoom {
 	// general game data
 	private roomId: string;
 	private type: GameType;
@@ -24,7 +25,7 @@ class GameRoom {
 	private drawerId?: string;
 	private word?: string; // word to be guessed
 	private hiddenWord?: string; // word with hints shown to the guessers
-	private matchTimeOutId?: NodeJS.Timeout;
+	private gameTimer: GameTimer;
 	private correctGuessers: Map<string, number>; // id and score of the players who guessed correctly
 
 	/** default setting */
@@ -44,6 +45,7 @@ class GameRoom {
 		this.round = 0;
 		this.remainingPlayers = [];
 		this.correctGuessers = new Map();
+		this.gameTimer = new GameTimer();
 	}
 
 	/** get total players count */
@@ -111,7 +113,6 @@ class GameRoom {
 		this.drawerId = undefined;
 		this.word = undefined;
 		this.hiddenWord = undefined;
-		this.matchTimeOutId = undefined;
 		this.correctGuessers.clear();
 
 		await Bun.sleep(5000);
@@ -164,10 +165,7 @@ class GameRoom {
 		this.status = GameStatus.IN_MATCH;
 
 		// set match timeout
-		this.matchTimeOutId = setTimeout(
-			() => this.endMatch(),
-			this.settings.drawTime * 1000,
-		);
+		this.gameTimer.startTimer(() => this.endMatch(), this.settings.drawTime);
 	}
 
 	/** end a round */
@@ -212,21 +210,6 @@ class GameRoom {
 		this.startRound();
 	}
 
-	/** evaluates the score for the give player id */
-	private evaluateScore(id: string) {
-		const player = this.players.get(id);
-		if (!player) return;
-
-		// TODO : calculate score based on time taken and place of guess
-		this.correctGuessers.set(player.id, 10);
-
-		// TODO : check if all players have guessed correctly so we can end the match early
-		if (this.correctGuessers.size === this.playerCount - 1) {
-			clearTimeout(this.matchTimeOutId);
-			this.endMatch();
-		}
-	}
-
 	/** vallidate the word guessed by a player */
 	validateWord(msg: string, name: string, wsId: string) {
 		let mode = ChatMode.NORMAL;
@@ -244,14 +227,25 @@ class GameRoom {
 			mode,
 		});
 
+		if (mode !== ChatMode.SYSTEM_SUCCESS) return;
 		// evaluating later so that emit happens first
-		if (mode === ChatMode.SYSTEM_SUCCESS) this.evaluateScore(wsId);
+		// evaluates the score for the give player id
+		const player = this.players.get(wsId);
+		if (!player) return;
+
+		// TODO : calculate score based on time taken and place of guess
+		// use gameTimer.getTimeLeft() to get time left in seconds
+		this.correctGuessers.set(player.id, 10);
+
+		// end the match early if all players have guessed correctly
+		if (this.correctGuessers.size === this.playerCount - 1) {
+			this.gameTimer.clearTimer();
+			this.endMatch();
+		}
 	}
 
 	// TODO: remove log method when all the variable are in use
 	log() {
-		console.log(this.settings, this.type, this.matchTimeOutId, this.drawerId);
+		console.log(this.settings, this.type, this.drawerId);
 	}
 }
-
-export { GameRoom };

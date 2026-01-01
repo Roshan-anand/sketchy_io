@@ -24,6 +24,7 @@ export function GameInfo({ className }: ComponentProps<"div">) {
 		} else if (intervalId.current) {
 			window.clearInterval(intervalId.current);
 			intervalId.current = null;
+			setTimer(0);
 		}
 
 		return () => {
