@@ -8,7 +8,7 @@ export class GameTimer {
 		this.duration = 0;
 	}
 
-	/** get the time left in milliseconds */
+	/** get the time left in seconds */
 	getTimeLeft() {
 		const timeSpent = Date.now() - this.startTime;
 		const timeLeft = Math.ceil((this.duration - timeSpent) / 1000);

@@ -11,6 +11,7 @@ const useGameService = () => {
 		setEndMatch,
 		setEndGame,
 		setRestart,
+		setMatchTimer,
 	} = useGameStore();
 
 	useEffect(() => {
@@ -24,6 +25,7 @@ const useGameService = () => {
 		socket.on("endMatch", (scoreBoard) => setEndMatch(scoreBoard));
 		socket.on("results", (players) => setEndGame(players));
 		socket.on("restart", () => setRestart());
+		socket.on("reduceTime", (newTimer) => setMatchTimer(newTimer));
 
 		return () => {
 			socket.off("roundInfo");
@@ -32,6 +34,7 @@ const useGameService = () => {
 			socket.off("endMatch");
 			socket.off("results");
 			socket.off("restart");
+			socket.off("reduceTime");
 		};
 	}, [
 		socket,
@@ -41,6 +44,7 @@ const useGameService = () => {
 		setEndMatch,
 		setEndGame,
 		setRestart,
+		setMatchTimer,
 	]);
 };
 

@@ -36,6 +36,7 @@ type Store = {
 	matchUtils: MatchUtils;
 	matchTimer: number;
 	scoreBoard: ScoreBoard;
+	setMatchTimer: (time: number) => void;
 	setGuessed: (word: string) => void;
 	updateRound: (round: number) => void;
 	setChoosingInfo: (data: choiceData) => void;
@@ -63,6 +64,7 @@ const useGameStore = create<Store>()((set, get) => ({
 	matchUtils: { isDrawer: false },
 	matchTimer: 0,
 	scoreBoard: { scores: [], word: "" },
+	setMatchTimer: (time) => set({ matchTimer: time }),
 	setGuessed: (word) =>
 		set({
 			canType: false,

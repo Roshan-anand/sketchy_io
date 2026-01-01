@@ -9,12 +9,19 @@ import {
 import { GameTimer } from "./gameTimer";
 import { io } from "./socket";
 
+type DurationList = {
+	thirty: number;
+	sixty: number;
+	ninety: number;
+};
+
 export class GameRoom {
 	// general game data
 	private roomId: string;
 	private type: GameType;
 	private status: GameStatus;
 	private settings: Setting;
+	private durationPercent: DurationList;
 	private players: Map<string, Player>;
 	private round: number;
 
@@ -46,6 +53,11 @@ export class GameRoom {
 		this.remainingPlayers = [];
 		this.correctGuessers = new Map();
 		this.gameTimer = new GameTimer();
+		this.durationPercent = {
+			thirty: 0,
+			sixty: 0,
+			ninety: 0,
+		};
 	}
 
 	/** get total players count */
@@ -206,6 +218,12 @@ export class GameRoom {
 	startGame(settings: Setting) {
 		this.settings = settings;
 		this.status = GameStatus.IN_PROGRESS;
+		const duration = this.settings.drawTime;
+		this.durationPercent = {
+			thirty: Math.floor(duration * 0.9),
+			sixty: Math.floor(duration * 0.6),
+			ninety: Math.floor(duration * 0.3),
+		};
 		this.round = 1;
 		this.startRound();
 	}
@@ -241,11 +259,37 @@ export class GameRoom {
 		if (this.correctGuessers.size === this.playerCount - 1) {
 			this.gameTimer.clearTimer();
 			this.endMatch();
+		} else {
+			// TODO : find a better way to handle reduce timer logic
+			// reduce the time
+			const guessedPercent =
+				(this.correctGuessers.size / (this.playerCount - 1)) * 100;
+			const timeLeft = this.gameTimer.getTimeLeft();
+			let newTime: number | undefined;
+			console.log(
+				"guessed :",
+				this.correctGuessers.size,
+				" players :",
+				this.playerCount - 1,
+				" percent : ",
+				guessedPercent,
+			);
+			if (guessedPercent >= 90 && timeLeft > this.durationPercent.ninety)
+				newTime = this.durationPercent.ninety;
+			else if (guessedPercent >= 66 && timeLeft > this.durationPercent.sixty)
+				newTime = this.durationPercent.sixty;
+			else if (guessedPercent >= 33 && timeLeft > this.durationPercent.thirty)
+				newTime = this.durationPercent.thirty;
+
+			if (newTime) {
+				io.to(this.roomId).emit("reduceTime", newTime);
+				this.gameTimer.startTimer(() => this.endMatch(), newTime);
+			}
 		}
 	}
 
 	// TODO: remove log method when all the variable are in use
 	log() {
-		console.log(this.settings, this.type, this.drawerId);
+		console.log(this.type);
 	}
 }

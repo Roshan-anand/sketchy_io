@@ -40,10 +40,8 @@ Note: If a task number is missing from the summary it is listed with a more deta
 - [ ] F14: Score calculation and display
   - [ ] T1: evaluate score based on time taken and guessed position
   - [ ] T2: evaluate score for the drawer based on number of players guessed and time taken
-  - [ ] T3: Sort players by score **[ easy ]**
 
 - [ ] F15: Timer for each round
-  - [ ] T1: if certain percent of players guessed correctly then decrease the time for others
   - [ ] T2: Hint after few seconds
   - [ ] T3: timer for word choosing by drawer
 
