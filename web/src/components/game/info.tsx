@@ -65,7 +65,7 @@ export function GameInfo({ className }: ComponentProps<"div">) {
 				<h3 className="flex-1 flex justify-center">
 					{matchUtils.isDrawer
 						? matchUtils.word
-						: matchUtils.hiddenWord?.split("").join("  ")}
+						: matchUtils.hiddenWord?.join(" ")}
 				</h3>
 				<Button variant={"link"}>
 					<Settings className="icon-lg" />

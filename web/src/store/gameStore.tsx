@@ -15,7 +15,7 @@ type MatchUtils =
 			choices?: string[];
 			word?: string;
 	  }
-	| { isDrawer: false; drawerName?: string; hiddenWord?: string };
+	| { isDrawer: false; drawerName?: string; hiddenWord?: string[] };
 
 type Store = {
 	gameState: GameState;
@@ -40,7 +40,8 @@ type Store = {
 	matchTimer: number;
 	scoreBoard: ScoreBoard;
 	setMatchTimer: (time: number) => void;
-	setGuessed: (word: string) => void;
+	setHiddenWord: (word: string[]) => void;
+	setGuessed: (word: string[]) => void;
 	updateRound: (round: number) => void;
 	setChoosingInfo: (data: choiceData) => void;
 	setStartMatch: (matchInfo: startMatchData, time: number) => void;
@@ -74,6 +75,17 @@ const useGameStore = create<Store>()((set, get) => ({
 	matchTimer: 0,
 	scoreBoard: { scores: [], word: "" },
 	setMatchTimer: (time) => set({ matchTimer: time }),
+	setHiddenWord: (word) => {
+		const { matchUtils } = get();
+
+		if (!matchUtils.isDrawer)
+			set({
+				matchUtils: {
+					...matchUtils,
+					hiddenWord: word,
+				},
+			});
+	},
 	setGuessed: (word) =>
 		set({
 			canType: false,

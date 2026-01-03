@@ -32,6 +32,7 @@ function ScoreBoard() {
 	return (
 		<CardContent className="flex flex-col justify-center items-center flex-1">
 			<h3>Score Board</h3>
+			<p>The word was: {scoreBoard.word}</p>
 			<ul>
 				{scoreBoard.scores.map(({ name, score }, i) => {
 					const key = `${name}+${i}`;

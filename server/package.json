@@ -2,7 +2,7 @@
 	"name": "server",
 	"scripts": {
 		"dev": "bun run --hot src/index.ts",
-		"build": "bun build src/index.ts --outdir ./dist",
+		"build": "bun build src/index.ts --outdir ./dist --external @socket.io/bun-engine",
 		"start": "bun dist/index.js",
 		"format": "biome format",
 		"lint": "biome lint",

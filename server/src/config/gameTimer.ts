@@ -17,6 +17,7 @@ export class GameTimer {
 
 	/**
 	 * Starts a timer for the specified duration in seconds.
+	 * @param callback - Function to be called when the timer ends.
 	 * @param duration - Duration in seconds for the timer.
 	 */
 	startTimer(callback: () => void, duration: number) {

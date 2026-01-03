@@ -60,6 +60,7 @@ export type Setting = {
 	maxRounds: number;
 	drawTime: number;
 	hints: number;
+	choiceCount: number;
 };
 
 export type OneSetting = {
@@ -95,7 +96,7 @@ export type startMatchData =
 	  }
 	| {
 			isDrawer: false;
-			hiddenWord: string;
+			hiddenWord: string[];
 	  };
 
 type ClientSentEvents = {
@@ -116,8 +117,9 @@ type ServerSentEvents = {
 	roundInfo: (round: number) => void;
 	choosing: (data: choiceData) => void;
 	startMatch: (matchInfo: startMatchData, time: number) => void;
-	guessed: (word: string) => void;
+	guessed: (word: string[]) => void;
 	reduceTime: (timeLeft: number) => void;
+	hint: (hiddenWord: string[]) => void;
 	endMatch: (scoreBoard: ScoreBoard) => void;
 	results: (scores: Player[]) => void;
 	restart: () => void;

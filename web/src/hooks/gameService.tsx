@@ -12,6 +12,7 @@ const useGameService = () => {
 		setEndGame,
 		setRestart,
 		setMatchTimer,
+		setHiddenWord,
 	} = useGameStore();
 
 	useEffect(() => {
@@ -26,6 +27,7 @@ const useGameService = () => {
 		socket.on("results", (players) => setEndGame(players));
 		socket.on("restart", () => setRestart());
 		socket.on("reduceTime", (newTimer) => setMatchTimer(newTimer));
+		socket.on("hint", (hiddenWord) => setHiddenWord(hiddenWord));
 
 		return () => {
 			socket.off("roundInfo");
@@ -45,6 +47,7 @@ const useGameService = () => {
 		setEndGame,
 		setRestart,
 		setMatchTimer,
+		setHiddenWord,
 	]);
 };
 

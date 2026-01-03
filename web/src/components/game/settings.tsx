@@ -31,6 +31,7 @@ export function GameSettings() {
 		maxRounds: 3,
 		drawTime: 80,
 		hints: 2,
+		choiceCount: 3,
 	});
 
 	const options: Options[] = [
@@ -54,6 +55,7 @@ export function GameSettings() {
 			values: ["1", "2", "3", "4", "5"],
 			key: "hints",
 		},
+		{ name: "choices", values: ["2", "3", "5"], key: "choiceCount" },
 	];
 
 	// Start game with selected settings

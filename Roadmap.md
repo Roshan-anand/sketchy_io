@@ -28,8 +28,7 @@ Note: If a task number is missing from the summary it is listed with a more deta
 ---
 
 # Task breakdown
-
-- [ ] F6: Game room settings
+ [ ] F6: Game room settings
   - [ ] T1: Custom words
 
 - [ ] F8: choosing word
@@ -39,7 +38,7 @@ Note: If a task number is missing from the summary it is listed with a more deta
 - [ ] F8: Drawing Board
   - [ ] T1: Real-time drawing
   - [ ] T2: Drawing tools (colors, brush size, eraser)
-  - [ ] T3: Undo/Redo functionality
+  - [ ] T3: Undo functionality
 
 - [ ] F15: Timer for each round
   - [ ] T2: Hint after few seconds

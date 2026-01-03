@@ -19,21 +19,6 @@ export class GameRoom {
 	// general game data
 	private roomId: string;
 	private type: GameType;
-	private status: GameStatus;
-	private settings: Setting;
-	private durationPercent: DurationList;
-	private players: Map<string, Player>;
-	private round: number;
-
-	// each round data
-	private remainingPlayers: string[]; // players who are yet to draw in the round
-
-	// each match data
-	private drawerId?: string;
-	private word?: string; // word to be guessed
-	private hiddenWord?: string; // word with hints shown to the guessers
-	private gameTimer: GameTimer;
-	private correctGuessers: Map<string, number>; // id and score of the players who guessed correctly
 
 	/** default setting */
 	private defaultSettings: Setting = {
@@ -41,23 +26,34 @@ export class GameRoom {
 		maxRounds: 3,
 		drawTime: 80,
 		hints: 2,
+		choiceCount: 3,
 	};
+
+	private status: GameStatus = GameStatus.WAITING;
+	private settings: Setting = this.defaultSettings;
+	private durationPercent: DurationList = {
+		seventy: 0,
+		fourty: 0,
+		ten: 0,
+	};
+	private players: Map<string, Player> = new Map();
+	private round: number = 0;
+	private hintIntervals: number[] = []; // time stamps for providing hints
+
+	// each round data
+	private remainingPlayers: string[] = []; // players who are yet to draw in the round
+
+	// each match data
+	private drawerId: string | null = null;
+	private word: string | null = null; // word to be guessed
+	private hiddenWord: string[] | null = null; // word with hints shown to the guessers
+	private gameTimer: GameTimer = new GameTimer();
+	private hintUsed: number = 0;
+	private correctGuessers: Map<string, number> = new Map(); // id and score of the players who guessed correctly
 
 	constructor(type: GameType, roomId: string) {
 		this.roomId = roomId;
 		this.type = type;
-		this.players = new Map();
-		this.status = GameStatus.WAITING;
-		this.settings = this.defaultSettings;
-		this.round = 0;
-		this.remainingPlayers = [];
-		this.correctGuessers = new Map();
-		this.gameTimer = new GameTimer();
-		this.durationPercent = {
-			seventy: 0,
-			fourty: 0,
-			ten: 0,
-		};
 	}
 
 	/** get total players count */
@@ -112,7 +108,7 @@ export class GameRoom {
 		// TODO: calculate score for drawer based on the number of correct guessers
 		this.correctGuessers.set(
 			this.drawerId as string,
-			this.getPlayerPercent("guessed"),
+			Math.floor(this.getPlayerPercent("guessed")),
 		);
 
 		const scores: Player[] = [];
@@ -131,10 +127,11 @@ export class GameRoom {
 		io.to(this.roomId).emit("roomMembers", this.getAllPlayers());
 
 		// set match information to default
-		this.drawerId = undefined;
-		this.word = undefined;
-		this.hiddenWord = undefined;
+		this.drawerId = null;
+		this.word = null;
+		this.hiddenWord = null;
 		this.correctGuessers.clear();
+		this.hintUsed = 0;
 
 		await Bun.sleep(5000);
 
@@ -155,6 +152,7 @@ export class GameRoom {
 		this.drawerId = drawerId;
 		// TODO: replace with actual word generation logic
 		// generate word choices
+		// generate number of words based on this.settings.choiceCount
 		const choices = ["apple", "banana", "cherry"];
 
 		// emit word choice
@@ -167,26 +165,44 @@ export class GameRoom {
 
 	/** starts a new match when drawer selects the word */
 	startMatch(word: string, drawerId: string) {
+		const { drawTime, hints } = this.settings;
+
 		if (!this.drawerId) this.drawerId = drawerId;
 		this.word = word;
 		// TODO: generate hidden word with underscores and spaces
 		// eg. "apple pie" => "_____ ___"
-		this.hiddenWord = "_".repeat(word.length);
+		this.hiddenWord = word.split("").map((char) => (char === " " ? " " : "_"));
 
-		const time = this.settings.drawTime;
 		// emit start match
-		io.to(drawerId).emit("startMatch", { isDrawer: true, word }, time);
+		io.to(drawerId).emit("startMatch", { isDrawer: true, word }, drawTime);
 		io.to(this.roomId)
 			.except(drawerId)
 			.emit(
 				"startMatch",
 				{ isDrawer: false, hiddenWord: this.hiddenWord },
-				time,
+				drawTime,
 			);
 		this.status = GameStatus.IN_MATCH;
 
 		// set match timeout
-		this.gameTimer.startTimer(() => this.endMatch(), this.settings.drawTime);
+		this.gameTimer.startTimer(() => this.endMatch(), drawTime);
+
+		// set hint timeouts
+		const interval = Math.floor(drawTime / (hints + 1));
+
+		for (let i = hints; i >= 1; i--) {
+			const timer = interval * i;
+			this.hintIntervals.push(timer);
+			setTimeout(
+				() => {
+					if (this.hintUsed <= i) {
+						console.log("emited on ", drawTime - timer);
+						this.provideHint(timer);
+					}
+				},
+				(drawTime - timer) * 1000,
+			);
+		}
 	}
 
 	/** end a round */
@@ -237,13 +253,45 @@ export class GameRoom {
 		this.startRound();
 	}
 
+	/** provide hint to players */
+	private provideHint(timeLeft: number) {
+		const hintUsed = this.hintUsed;
+		//either  all hints used
+		// or time left is greater than the hint interval
+		if (
+			hintUsed === this.settings.hints ||
+			timeLeft > this.hintIntervals[hintUsed]
+		)
+			return;
+
+		if (
+			!this.word ||
+			!this.hiddenWord ||
+			this.hintUsed >= this.word.length * 0.5
+		)
+			return; // prevent revealing more than 60% of the word
+
+		while (true) {
+			const index = Math.floor(Math.random() * this.word.length);
+			if (this.word[index] !== this.hiddenWord[index]) {
+				this.hintUsed++;
+				this.hiddenWord[index] = this.word[index];
+				break;
+			}
+		}
+		io.to(this.roomId)
+			.except(Array.from(this.correctGuessers.keys()))
+			.except(this.drawerId as string)
+			.emit("hint", this.hiddenWord);
+	}
+
 	/** vallidate the word guessed by a player */
 	validateWord(msg: string, name: string, wsId: string) {
 		let mode = ChatMode.NORMAL;
 
 		if (this.status === GameStatus.IN_MATCH && !this.correctGuessers.has(wsId))
 			if (this.word && this.word === msg) {
-				io.to(wsId).emit("guessed", msg); // notify the guesser that they have guessed correctly
+				io.to(wsId).emit("guessed", msg.split("")); // notify the guesser that they have guessed correctly
 				msg = `${name} guessed the word`;
 				mode = ChatMode.SYSTEM_SUCCESS;
 			}
@@ -276,18 +324,20 @@ export class GameRoom {
 			const notGuessed = this.getPlayerPercent("notGuessed");
 
 			const timeLeft = this.gameTimer.getTimeLeft();
-			let newTime: number | undefined;
+			let newTimeLeft: number | undefined;
 
 			if (notGuessed <= 70 && timeLeft > this.durationPercent.seventy)
-				newTime = this.durationPercent.seventy;
+				newTimeLeft = this.durationPercent.seventy;
 			else if (notGuessed <= 40 && timeLeft > this.durationPercent.fourty)
-				newTime = this.durationPercent.fourty;
+				newTimeLeft = this.durationPercent.fourty;
 			else if (notGuessed <= 10 && timeLeft > this.durationPercent.ten)
-				newTime = this.durationPercent.ten;
+				newTimeLeft = this.durationPercent.ten;
 
-			if (newTime) {
-				io.to(this.roomId).emit("reduceTime", newTime);
-				this.gameTimer.startTimer(() => this.endMatch(), newTime);
+			if (newTimeLeft) {
+				io.to(this.roomId).emit("reduceTime", newTimeLeft);
+				this.gameTimer.startTimer(() => this.endMatch(), newTimeLeft);
+
+				this.provideHint(newTimeLeft); // in case a hint is to be provided on time reduction
 			}
 		}
 	}
