@@ -46,9 +46,5 @@ Note: If a task number is missing from the summary it is listed with a more deta
 
 # Possibliities
 
-- [ ] P3: what if all players left leaving one in the room during the match?
-      - declare that player as winner and end the game
 - [ ] P4: what if a player disconnects and all other players guessed the word?
       - end the match
-- [ ] P5: what if a host disconnects?
-      - assign host role to next player in the list

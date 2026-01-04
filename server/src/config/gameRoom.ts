@@ -20,6 +20,7 @@ export class GameRoom {
 	// general game data
 	private roomId: string;
 	private type: GameType;
+	private _hostId: string;
 
 	/** default setting */
 	private defaultSettings: Setting = {
@@ -53,9 +54,14 @@ export class GameRoom {
 	private hintUsed: number = 0;
 	private correctGuessers: Map<string, number> = new Map(); // id and score of the players who guessed correctly
 
-	constructor(type: GameType, roomId: string) {
+	constructor(type: GameType, roomId: string, hostId: string) {
 		this.roomId = roomId;
 		this.type = type;
+		this._hostId = hostId;
+	}
+
+	get hostId() {
+		return this._hostId;
 	}
 
 	/** get total players count */
@@ -116,6 +122,15 @@ export class GameRoom {
 				this.gameTimer.clearTimer();
 				this.endMatch();
 			}
+		}
+
+		// if player is host then choose a random player to be host
+		if (this.hostId === playerId) {
+			const hostId = this.players.keys().next().value;
+			if (!hostId) return;
+			this._hostId = hostId;
+			io.to(this.roomId).except(hostId).emit("hostInfo", hostId);
+			io.to(hostId).emit("setHost", hostId);
 		}
 	}
 

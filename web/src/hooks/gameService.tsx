@@ -13,6 +13,7 @@ const useGameService = () => {
 		setRestart,
 		setMatchTimer,
 		setHiddenWord,
+		setHost,
 	} = useGameStore();
 
 	useEffect(() => {
@@ -28,6 +29,8 @@ const useGameService = () => {
 		socket.on("restart", () => setRestart());
 		socket.on("reduceTime", (newTimer) => setMatchTimer(newTimer));
 		socket.on("hint", (hiddenWord) => setHiddenWord(hiddenWord));
+		socket.on("hostInfo", (hostId) => setHost(hostId, false));
+		socket.on("setHost", (hostId) => setHost(hostId, true));
 
 		return () => {
 			socket.off("roundInfo");
@@ -37,6 +40,9 @@ const useGameService = () => {
 			socket.off("results");
 			socket.off("restart");
 			socket.off("reduceTime");
+			socket.off("hint");
+			socket.off("hostInfo");
+			socket.off("setHost");
 		};
 	}, [
 		socket,
@@ -48,6 +54,7 @@ const useGameService = () => {
 		setRestart,
 		setMatchTimer,
 		setHiddenWord,
+		setHost,
 	]);
 };
 

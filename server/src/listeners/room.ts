@@ -56,18 +56,18 @@ export const joinRoom = (ws: TypedScoket, name: string, roomId: string) => {
 		msg: `${ws.data.name} joined the game`,
 		mode: ChatMode.SYSTEM_INFO,
 	});
-	ws.emit("roomJoined", roomId, room.getAllPlayers());
+	ws.emit("roomJoined", roomId, room.getAllPlayers(), room.hostId);
 	ws.join(roomId);
 };
 
 export const createRoom = (ws: TypedScoket, name: string) => {
 	const roomId = generateId(6);
-	const room = new GameRoom(GameType.PRIVATE, roomId); // create a private room instance
+	const room = new GameRoom(GameType.PRIVATE, roomId, ws.id); // create a private room instance
 	room.addPlayer({ id: ws.id, name });
 
 	GameRooms.set(roomId, room);
 	ws.data = { name, roomId };
 
-	ws.emit("roomCreated", roomId, room.getAllPlayers());
+	ws.emit("roomCreated", roomId, room.getAllPlayers(), ws.id);
 	ws.join(roomId);
 };

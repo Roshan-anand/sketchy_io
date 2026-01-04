@@ -21,15 +21,18 @@ type Store = {
 	gameState: GameState;
 	setGameState: (state: GameState) => void;
 	roomId: string | null;
+	hostId: string | null;
 	isHost: boolean;
 	players: Player[];
 	setPlayers: (players: Player[]) => void;
 	setEnterGame: (
 		gameState: GameState,
 		roomId: string,
-		isHost: boolean,
 		players: Player[],
+		isHost: boolean,
+		hostId: string,
 	) => void;
+	setHost: (hostId: string, isHost: boolean) => void;
 	gameIntervalId: number | null;
 	setGameIntervalId: (id: number | null) => void;
 	// to handle the match
@@ -55,11 +58,13 @@ const useGameStore = create<Store>()((set, get) => ({
 	gameState: GameState.ONBOARDING,
 	setGameState: (state) => set({ gameState: state }),
 	roomId: null,
+	hostId: null,
 	isHost: false,
 	players: [],
 	setPlayers: (players) => set({ players: players }),
-	setEnterGame: (gameState, roomId, isHost, players) =>
-		set({ gameState, roomId, isHost, players }),
+	setEnterGame: (gameState, roomId, players, isHost, hostId) =>
+		set({ gameState, roomId, players, isHost, hostId }),
+	setHost: (hostId, isHost) => set({ hostId, isHost }),
 
 	gameIntervalId: null,
 	setGameIntervalId: (id: number | null) => {

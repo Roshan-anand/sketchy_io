@@ -113,8 +113,10 @@ type ClientSentEvents = {
 
 type ServerSentEvents = {
 	wsError: (error: string) => void;
-	roomJoined: (roomId: string, players: Player[]) => void;
-	roomCreated: (roomId: string, players: Player[]) => void;
+	roomJoined: (roomId: string, players: Player[], hostId: string) => void;
+	roomCreated: (roomId: string, players: Player[], hostId: string) => void;
+	hostInfo: (hostId: string) => void;
+	setHost: (hostId: string) => void;
 	chatMsg: (msg: ChatMsg) => void;
 	updateSettings: (setting: OneSetting) => void;
 	roomMembers: (players: Player[]) => void;

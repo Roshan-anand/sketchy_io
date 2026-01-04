@@ -33,14 +33,14 @@ const useConnectSocket = () => {
 
 		socket.on("wsError", (err) => toast.error(err));
 
-		socket.on("roomCreated", (roomId, players) => {
+		socket.on("roomCreated", (roomId, players, hostId) => {
 			window.history.replaceState({}, document.title, window.location.origin);
-			setEnterGame(GameState.WAITING, roomId, true, players);
+			setEnterGame(GameState.WAITING, roomId, players, true, hostId);
 		});
 
 		// listen for room join confirmation
-		socket.on("roomJoined", (roomId, players) =>
-			setEnterGame(GameState.WAITING, roomId, false, players),
+		socket.on("roomJoined", (roomId, players, hostId) =>
+			setEnterGame(GameState.WAITING, roomId, players, false, hostId),
 		);
 
 		socket.on("roomMembers", (data) => setPlayers(data));
