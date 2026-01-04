@@ -2,6 +2,7 @@ import {
 	ChatMode,
 	GameStatus,
 	type GameType,
+	MatchStatus,
 	type OneSetting,
 	type Player,
 	type Setting,
@@ -44,6 +45,7 @@ export class GameRoom {
 	private remainingPlayers: string[] = []; // players who are yet to draw in the round
 
 	// each match data
+	private matchStatus: MatchStatus = MatchStatus.NONE;
 	private drawerId: string | null = null;
 	private word: string | null = null; // word to be guessed
 	private hiddenWord: string[] | null = null; // word with hints shown to the guessers
@@ -98,6 +100,17 @@ export class GameRoom {
 	/** remove a player from the room */
 	removePlayer(playerId: string) {
 		this.players.delete(playerId);
+
+		// check if player is choosing or drawing
+		if (this.drawerId === playerId) {
+			this.drawerId = null;
+			if (this.matchStatus === MatchStatus.CHOOSING) this.chooseDrawer();
+			else if (this.matchStatus === MatchStatus.DRAWING) {
+				this.correctGuessers.clear(); // clear correct guessers so that no score is given
+				this.gameTimer.clearTimer();
+				this.endMatch();
+			}
+		}
 	}
 
 	/** end the match */
@@ -105,11 +118,13 @@ export class GameRoom {
 		// set status back to in progress, so no more eveluation happens
 		this.status = GameStatus.IN_PROGRESS;
 
-		// TODO: calculate score for drawer based on the number of correct guessers
-		this.correctGuessers.set(
-			this.drawerId as string,
-			Math.floor(this.getPlayerPercent("guessed")),
-		);
+		// if no drawerID that means he already left the game
+		if (this.drawerId)
+			// TODO: calculate score for drawer based on the number of correct guessers
+			this.correctGuessers.set(
+				this.drawerId as string,
+				Math.floor(this.getPlayerPercent("guessed")),
+			);
 
 		const scores: Player[] = [];
 
@@ -132,6 +147,7 @@ export class GameRoom {
 		this.hiddenWord = null;
 		this.correctGuessers.clear();
 		this.hintUsed = 0;
+		this.matchStatus = MatchStatus.NONE;
 
 		await Bun.sleep(5000);
 
@@ -155,6 +171,8 @@ export class GameRoom {
 		// generate number of words based on this.settings.choiceCount
 		const choices = ["apple", "banana", "cherry"];
 
+		this.matchStatus = MatchStatus.CHOOSING;
+
 		// emit word choice
 		io.to(drawerId).emit("choosing", { isDrawer: true, choices });
 		// TODO: if possible emit the whole data of the drawer
@@ -173,6 +191,9 @@ export class GameRoom {
 		// eg. "apple pie" => "_____ ___"
 		this.hiddenWord = word.split("").map((char) => (char === " " ? " " : "_"));
 
+		this.status = GameStatus.IN_MATCH;
+		this.matchStatus = MatchStatus.DRAWING;
+
 		// emit start match
 		io.to(drawerId).emit("startMatch", { isDrawer: true, word }, drawTime);
 		io.to(this.roomId)
@@ -182,7 +203,6 @@ export class GameRoom {
 				{ isDrawer: false, hiddenWord: this.hiddenWord },
 				drawTime,
 			);
-		this.status = GameStatus.IN_MATCH;
 
 		// set match timeout
 		this.gameTimer.startTimer(() => this.endMatch(), drawTime);
@@ -214,6 +234,7 @@ export class GameRoom {
 
 			// set all values to default
 			this.status = GameStatus.WAITING;
+			this.matchStatus = MatchStatus.NONE;
 			this.settings = this.defaultSettings;
 			this.round = 0;
 			this.players.forEach((player) => {
@@ -289,7 +310,10 @@ export class GameRoom {
 	validateWord(msg: string, name: string, wsId: string) {
 		let mode = ChatMode.NORMAL;
 
-		if (this.status === GameStatus.IN_MATCH && !this.correctGuessers.has(wsId))
+		if (
+			this.matchStatus === MatchStatus.DRAWING &&
+			!this.correctGuessers.has(wsId)
+		)
 			if (this.word && this.word === msg) {
 				io.to(wsId).emit("guessed", msg.split("")); // notify the guesser that they have guessed correctly
 				msg = `${name} guessed the word`;

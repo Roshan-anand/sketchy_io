@@ -44,6 +44,12 @@ export enum GameStatus {
 	FINISHED,
 }
 
+export enum MatchStatus {
+	CHOOSING,
+	DRAWING,
+	NONE,
+}
+
 export type Player = {
 	id: string;
 	name: string;

@@ -40,19 +40,12 @@ Note: If a task number is missing from the summary it is listed with a more deta
   - [ ] T2: Drawing tools (colors, brush size, eraser)
   - [ ] T3: Undo functionality
 
-- [ ] F15: Timer for each round
-  - [ ] T2: Hint after few seconds
-
 # Bugs
 
 - [ ] B1: Client creates room and cannot type msg until any one joines.
 
 # Possibliities
 
-- [ ] P1: what if drawer left when he is choosing word?
-      - make another player the drawer
-- [ ] P2: what if drawer disconnects during drawing?
-      - end the match with 0 score for everyone
 - [ ] P3: what if all players left leaving one in the room during the match?
       - declare that player as winner and end the game
 - [ ] P4: what if a player disconnects and all other players guessed the word?
