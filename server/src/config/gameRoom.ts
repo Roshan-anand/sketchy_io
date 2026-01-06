@@ -240,7 +240,6 @@ export class GameRoom {
 			setTimeout(
 				() => {
 					if (this.hintUsed <= i) {
-						console.log("emited on ", drawTime - timer);
 						this.provideHint(timer);
 					}
 				},

@@ -40,9 +40,13 @@ Note: If a task number is missing from the summary it is listed with a more deta
   - [ ] T2: Drawing tools (colors, brush size, eraser)
   - [ ] T3: Undo functionality
 
+- [ ] F19: clear chat in new match
+
 # Bugs
 
 - [ ] B1: Client creates room and cannot type msg until any one joines.
+- [ ] B2: Player mid game joining shows waiting.
+- [ ]
 
 # Possibliities
 - none

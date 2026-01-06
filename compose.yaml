@@ -1,0 +1,24 @@
+services:
+  server:
+    image: sketchy-server:latest
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.skserver.rule=Host(`skserver.roshananand.cloud`)"
+      - "traefik.http.routers.skserver.entrypoints=websecure"
+      - "traefik.http.routers.skserver.tls.certresolver=cloudflare"
+      - "traefik.http.services.skserver.loadbalancer.server.port=3000"
+      - "traefik.constraint-label=head-proxy"
+    networks:
+      - proxy_net
+    deploy:
+      update_config:
+        order: start-first
+
+networks:
+  proxy_net:
+    external: true

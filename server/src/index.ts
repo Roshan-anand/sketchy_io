@@ -7,6 +7,7 @@ if (!url) {
 	console.error("Error: WEB_URL environment variable is required. Exiting.");
 	process.exit(1);
 }
+console.log("WEB_URL:", url);
 
 // Initialize Socket.IO server with Bun Engine
 const engine = new Engine({

@@ -1,0 +1,10 @@
+dist
+node_modules
+.dockerignore
+.env
+.env.example
+.gitignore
+Dockerfile*
+README.md
+sample.ts
+.git
