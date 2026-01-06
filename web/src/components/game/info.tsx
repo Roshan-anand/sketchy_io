@@ -1,6 +1,6 @@
-import { Settings, TimerIcon } from "lucide-react";
+import { Settings } from "lucide-react";
 import { type ComponentProps, useCallback, useEffect, useState } from "react";
-import { CanvaState } from "@/lib/types";
+import { CanvaState, GameState } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import useGameStore from "@/store/gameStore";
 import useSocketStore from "@/store/socketStore";
@@ -8,8 +8,14 @@ import { Button } from "../ui/button";
 import { Card, CardHeader } from "../ui/card";
 
 export function GameInfo({ className }: ComponentProps<"div">) {
-	const { matchTimer, round, canvaState, matchUtils, setGameIntervalId } =
-		useGameStore();
+	const {
+		matchTimer,
+		round,
+		canvaState,
+		matchUtils,
+		setGameIntervalId,
+		gameState,
+	} = useGameStore();
 	const { socket } = useSocketStore();
 	const [timer, setTimer] = useState(0);
 
@@ -55,17 +61,21 @@ export function GameInfo({ className }: ComponentProps<"div">) {
 	}, [canvaState, matchTimer, emitChoiceMade, clearTimer, setGameIntervalId]);
 
 	return (
-		<Card className={cn("", className)}>
-			<CardHeader className="gap-2">
-				<h3>Round: {round}</h3>
-				<h3 className="flex items-center gap-2">
-					<TimerIcon className="icon-md" />
-					<span> {timer}s</span>
-				</h3>
+		<Card className={cn("h-fit py-1", className)}>
+			<CardHeader className="gap-2 flex items-center justify-center">
+				<div className="flex flex-col items-center gap-[3px]">
+					<span className="bg-foreground w-2.5 h-1.5 rounded-md" />
+					<p className="rounded-full border icon-md flex justify-center items-center">
+						{timer}
+					</p>
+				</div>
+				<p>Round: {round}</p>
 				<h3 className="flex-1 flex justify-center">
-					{matchUtils.isDrawer
-						? matchUtils.word
-						: matchUtils.hiddenWord?.join(" ")}
+					{gameState === GameState.WAITING
+						? "Waiting"
+						: matchUtils.isDrawer
+							? matchUtils.word
+							: matchUtils.hiddenWord?.join(" ")}
 				</h3>
 				<Button variant={"link"}>
 					<Settings className="icon-lg" />

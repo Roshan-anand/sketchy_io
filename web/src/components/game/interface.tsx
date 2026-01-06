@@ -18,7 +18,7 @@ export function GameInterface() {
 					<Spinner className="size-[30%] max-w-25 " />
 				</div>
 			) : (
-				<div className="w-[clamp(500px,90%,900px)] h-[clamp(500px,90%,900px)] flex flex-col gap-2">
+				<div className="w-[clamp(500px,100%,1000px)] h-[clamp(500px,100%,900px)] flex flex-col gap-2 py-2">
 					<GameInfo className="" />
 					<span className="flex-1 flex gap-2">
 						<PlayersInfo className="flex-1" />

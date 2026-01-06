@@ -122,6 +122,9 @@ export class GameRoom {
 				this.gameTimer.clearTimer();
 				this.endMatch();
 			}
+		} else if (this.correctGuessers.size === this.playerCount - 1) {
+			this.gameTimer.clearTimer();
+			this.endMatch();
 		}
 
 		// if player is host then choose a random player to be host
@@ -246,6 +249,7 @@ export class GameRoom {
 		}
 	}
 
+	/** winner announcement of the game  */
 	private async winnerAnnouncement() {
 		// winner announcement
 		io.to(this.roomId).emit("results", this.getAllPlayers());

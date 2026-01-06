@@ -33,11 +33,16 @@ export function PlayerInput({ className }: ComponentProps<"section">) {
 	}, [socket, setGuessed]);
 
 	return (
-		<Card className={cn("border rounded-md ", className)}>
-			<CardContent>
+		<Card
+			className={cn(
+				"border rounded-md max-h-[500px] flex flex-col p-0 gap-0",
+				className,
+			)}
+		>
+			<CardContent className="flex-1 max-h-[85%]">
 				<ul
 					ref={listRef}
-					className="max-h-48 overflow-y-auto mb-2 flex flex-col gap-1"
+					className="h-full overflow-y-auto mb-2 flex flex-col gap-1"
 				>
 					{chatMsgs.map(({ msg, name, mode }, i) => {
 						const key = `${i}-${name}`;
@@ -55,7 +60,7 @@ export function PlayerInput({ className }: ComponentProps<"section">) {
 					})}
 				</ul>
 			</CardContent>
-			<CardFooter>
+			<CardFooter className="min-h-20 ">
 				<Input
 					disabled={matchUtils.isDrawer || !canType}
 					onKeyDown={(e) => {

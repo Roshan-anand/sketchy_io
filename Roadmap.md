@@ -28,8 +28,8 @@ Note: If a task number is missing from the summary it is listed with a more deta
 ---
 
 # Task breakdown
- [ ] F6: Game room settings
-  - [ ] T1: Custom words
+ - [ ] F6: Game room settings
+   - [ ] T1: Custom words
 
 - [ ] F8: choosing word
   - [ ] T1: settings options for number of words to choose from.
@@ -45,6 +45,4 @@ Note: If a task number is missing from the summary it is listed with a more deta
 - [ ] B1: Client creates room and cannot type msg until any one joines.
 
 # Possibliities
-
-- [ ] P4: what if a player disconnects and all other players guessed the word?
-      - end the match
+- none
