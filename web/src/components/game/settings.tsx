@@ -1,5 +1,5 @@
 import { Copy } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
 import {
 	Select,
@@ -23,16 +23,8 @@ type Options = {
 };
 
 export function GameSettings() {
-	const { roomId, players, isHost } = useGameStore();
+	const { roomId, players, isHost, settings, setSettings } = useGameStore();
 	const { socket } = useSocketStore();
-
-	const [settings, setSettings] = useState<Setting>({
-		totalPlayers: 8,
-		maxRounds: 3,
-		drawTime: 80,
-		hints: 2,
-		choiceCount: 3,
-	});
 
 	const options: Options[] = [
 		{
@@ -81,15 +73,12 @@ export function GameSettings() {
 	};
 
 	useEffect(() => {
-		if (!socket) return;
-		socket.on("updateSettings", (setting) => {
-			setSettings((prev) => ({
-				...prev,
-				...setting,
-			}));
-		});
-		return () => {};
-	}, [socket]);
+		if (!socket || isHost) return;
+		socket.on("updateSettings", (setting) => setSettings(setting));
+		return () => {
+			socket.off("updateSettings");
+		};
+	}, [socket, setSettings, isHost]);
 
 	return (
 		<>
@@ -103,10 +92,9 @@ export function GameSettings() {
 						<Select
 							value={settings[key].toString()}
 							onValueChange={(value) => {
-								setSettings((prev) => ({
-									...prev,
+								setSettings({
 									[key]: parseInt(value, 10),
-								}));
+								} as OneSetting);
 
 								if (socket)
 									socket.emit("updateSettings", {

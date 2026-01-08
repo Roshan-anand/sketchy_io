@@ -15,6 +15,7 @@ export function GameInfo({ className }: ComponentProps<"div">) {
 		matchUtils,
 		setGameIntervalId,
 		gameState,
+		settings,
 	} = useGameStore();
 	const { socket } = useSocketStore();
 	const [timer, setTimer] = useState(0);
@@ -69,7 +70,9 @@ export function GameInfo({ className }: ComponentProps<"div">) {
 						{timer}
 					</p>
 				</div>
-				<p>Round: {round}</p>
+				<p>
+					Round: {round} of {settings.maxRounds}
+				</p>
 				<h3 className="flex-1 flex justify-center">
 					{gameState === GameState.WAITING
 						? "Waiting"

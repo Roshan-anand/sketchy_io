@@ -110,8 +110,9 @@ export class GameRoom {
 			roomId: this.roomId,
 			players: this.getAllPlayers(),
 			hostId: this._hostId,
+			settings: this.settings,
 			...data,
-		} as RoomJoinedData;
+		};
 	}
 
 	/** get all players in the room */
@@ -137,8 +138,10 @@ export class GameRoom {
 	removePlayer(playerId: string) {
 		this.players.delete(playerId);
 
+		if (this.status === GameStatus.WAITING) return;
+
 		// announce winner if only one player left
-		if (this.status !== GameStatus.WAITING && this.playerCount === 1) {
+		if (this.playerCount === 1) {
 			this.winnerAnnouncement();
 			return;
 		}

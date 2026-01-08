@@ -4,9 +4,11 @@ import {
 	type choiceData,
 	GameState,
 	MatchStatus,
+	type OneSetting,
 	type Player,
 	type RoomJoinedData,
 	type ScoreBoard,
+	type Setting,
 	type startMatchData,
 } from "@/lib/types";
 
@@ -26,7 +28,9 @@ type Store = {
 	hostId: string | null;
 	isHost: boolean;
 	players: Player[];
+	settings: Setting;
 	setPlayers: (players: Player[]) => void;
+	setSettings: (oneSetting: OneSetting) => void;
 	setEnterGame: (roomId: string, players: Player[], hostId: string) => void;
 	setJoinGame: (data: RoomJoinedData) => void;
 	setHost: (hostId: string, isHost: boolean) => void;
@@ -58,7 +62,16 @@ const useGameStore = create<Store>()((set, get) => ({
 	hostId: null,
 	isHost: false,
 	players: [],
+	settings: {
+		totalPlayers: 8,
+		maxRounds: 3,
+		drawTime: 80,
+		hints: 2,
+		choiceCount: 3,
+	},
 	setPlayers: (players) => set({ players: players }),
+	setSettings: (oneSetting) =>
+		set({ settings: { ...get().settings, ...oneSetting } }),
 	setEnterGame: (roomId, players, hostId) =>
 		set({
 			gameState: GameState.WAITING,
@@ -69,27 +82,24 @@ const useGameStore = create<Store>()((set, get) => ({
 		}),
 	setJoinGame: (data) => {
 		const { setChoosingInfo, setStartMatch } = get();
-		const { roomId, hostId, players } = data;
+		const { roomId, hostId, players, matchStatus, settings } = data;
+
 		set({
 			roomId,
 			players,
 			isHost: false,
 			hostId,
+			gameState:
+				matchStatus === MatchStatus.NONE
+					? GameState.WAITING
+					: GameState.PLAYING,
+			settings,
 		});
 
-		switch (data.matchStatus) {
-			case MatchStatus.CHOOSING:
-				set({ gameState: GameState.PLAYING });
-				setChoosingInfo(data.choosingData);
-				break;
-			case MatchStatus.DRAWING:
-				// TODO : also bring the drawing data to sync the canvas
-				set({ gameState: GameState.PLAYING });
-				setStartMatch(data.startMatchData, data.timer);
-				break;
-			default:
-				set({ gameState: GameState.WAITING });
-		}
+		if (matchStatus === MatchStatus.CHOOSING)
+			setChoosingInfo(data.choosingData);
+		else if (matchStatus === MatchStatus.DRAWING)
+			setStartMatch(data.startMatchData, data.timer); // TODO : also bring the drawing data to sync the canvas
 	},
 	setHost: (hostId, isHost) => set({ hostId, isHost }),
 	gameIntervalId: null,

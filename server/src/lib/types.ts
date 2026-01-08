@@ -124,7 +124,7 @@ export type RoomUtilData =
 			matchStatus: MatchStatus.CHOOSING;
 			choosingData: Extract<choiceData, { isDrawer: false }>;
 	  };
-export type RoomJoinedData = RoomData & RoomUtilData;
+export type RoomJoinedData = RoomData & { settings: Setting } & RoomUtilData;
 
 type ClientSentEvents = {
 	startGame: (settings: Setting) => void;

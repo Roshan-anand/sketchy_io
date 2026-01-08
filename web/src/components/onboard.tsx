@@ -10,6 +10,7 @@ export function PlayerOnboard() {
 	const { connect } = useSocketStore();
 	const { setGameState } = useGameStore();
 
+	const roomId = window.location.search.replace("?", "");
 	const nameRef = useRef<HTMLInputElement>(null);
 
 	const handleSubmit = (type: GameEntryType) => {
@@ -22,7 +23,6 @@ export function PlayerOnboard() {
 		localStorage.setItem("sketchy_name", name);
 
 		if (type === GameEntryType.JOIN) {
-			const roomId = window.location.search.replace("?", "");
 			connect({ name, roomId, type: GameEntryType.JOIN });
 		} else connect({ name, type: GameEntryType.CREATE });
 
@@ -40,9 +40,14 @@ export function PlayerOnboard() {
 					className="outline-none ring-0"
 				/>
 				<figure>Character</figure>
-				<Button type="button" onClick={() => handleSubmit(GameEntryType.JOIN)}>
-					Play!
-				</Button>
+				{roomId !== "" && (
+					<Button
+						type="button"
+						onClick={() => handleSubmit(GameEntryType.JOIN)}
+					>
+						Join Room
+					</Button>
+				)}
 				<Button
 					type="button"
 					variant={"secondary"}

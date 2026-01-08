@@ -41,8 +41,6 @@ Note: If a task number is missing from the summary it is listed with a more deta
   - [ ] T3: Undo functionality
 
 - [ ] F19: clear chat in new match
-- [ ] F20: need seetings data in clientside
-
 
 # Bugs [ TASK ] [ priotity ]
 
