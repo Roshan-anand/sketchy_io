@@ -1,4 +1,4 @@
-import { GameRooms, io } from "../config/socket";
+import { GameRoomsHub, io } from "../config/socket";
 import type { TypedScoket } from "../lib/types";
 
 /**
@@ -12,7 +12,7 @@ export const emitErr = (ws: TypedScoket, msg: string) => {
 };
 
 export const broadcastTotalMembers = (roomId: string) => {
-	const room = GameRooms.get(roomId);
+	const room = GameRoomsHub.get(roomId);
 	if (!room) return;
 
 	io.in(roomId).emit("roomMembers", room.getAllPlayers());

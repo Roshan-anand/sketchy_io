@@ -1,3 +1,4 @@
+import { io } from "../config/socket";
 import {
 	ChatMode,
 	GameStatus,
@@ -9,8 +10,8 @@ import {
 	type RoomUtilData,
 	type Setting,
 } from "../lib/types";
+import { WordsCuration } from "./curateWords";
 import { GameTimer } from "./gameTimer";
-import { io } from "./socket";
 
 type DurationList = {
 	seventy: number;
@@ -52,6 +53,7 @@ export class GameRoom {
 	private drawerId: string | null = null;
 	private word: string | null = null; // word to be guessed
 	private hiddenWord: string[] | null = null; // word with hints shown to the guessers
+	private wordCuration: WordsCuration = new WordsCuration();
 	private gameTimer: GameTimer = new GameTimer();
 	private hintUsed: number = 0;
 	private correctGuessers: Map<string, number> = new Map(); // id and score of the players who guessed correctly
@@ -228,12 +230,10 @@ export class GameRoom {
 		}
 
 		this.drawerId = drawerId;
-		// TODO: replace with actual word generation logic
-		// generate word choices
-		// generate number of words based on this.settings.choiceCount
-		const choices = ["apple", "banana", "cherry"];
-
 		this.matchStatus = MatchStatus.CHOOSING;
+		const choices = this.wordCuration.getCuratedWords(
+			this.settings.choiceCount,
+		);
 
 		// emit word choice
 		io.to(drawerId).emit("choosing", { isDrawer: true, choices });
@@ -249,9 +249,8 @@ export class GameRoom {
 
 		if (!this.drawerId) this.drawerId = drawerId;
 		this.word = word;
-		// TODO: generate hidden word with underscores and spaces
-		// eg. "apple pie" => "_____ ___"
 		this.hiddenWord = word.split("").map((char) => (char === " " ? " " : "_"));
+		this.wordCuration.wordGuessed = word; // mark word as guessed
 
 		this.status = GameStatus.IN_MATCH;
 		this.matchStatus = MatchStatus.DRAWING;
@@ -408,8 +407,7 @@ export class GameRoom {
 			this.gameTimer.clearTimer();
 			this.endMatch();
 		} else {
-			// TODO : find a better way to handle reduce timer logic
-			// reduce the time
+			// reduce the timer based on percentage of players guessed
 			const notGuessed = this.getPlayerPercent("notGuessed");
 
 			const timeLeft = this.gameTimer.getTimeLeft();

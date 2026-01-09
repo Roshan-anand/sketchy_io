@@ -1,5 +1,5 @@
-import { GameRoom } from "../config/gameRoom";
-import { GameRooms, io } from "../config/socket";
+import { GameRoomsHub, io } from "../config/socket";
+import { GameRoom } from "../core/gameRoom";
 import { ChatMode, GameType, type TypedScoket } from "../lib/types";
 import { generateId } from "../lib/utils";
 import { broadcastTotalMembers, emitErr } from "./utils";
@@ -31,11 +31,11 @@ import { broadcastTotalMembers, emitErr } from "./utils";
 // };
 
 export const joinRoom = (ws: TypedScoket, name: string, roomId: string) => {
-	const room = GameRooms.get(roomId);
+	const room = GameRoomsHub.get(roomId);
 
 	if (!room) {
 		emitErr(ws, "join a random room");
-		// TODO : join a random room
+		// TODO : join a random room logic
 		return;
 	}
 
@@ -65,7 +65,7 @@ export const createRoom = (ws: TypedScoket, name: string) => {
 	const room = new GameRoom(GameType.PRIVATE, roomId, ws.id); // create a private room instance
 	room.addPlayer({ id: ws.id, name });
 
-	GameRooms.set(roomId, room);
+	GameRoomsHub.set(roomId, room);
 	ws.data = { name, roomId };
 
 	ws.emit("roomCreated", {
