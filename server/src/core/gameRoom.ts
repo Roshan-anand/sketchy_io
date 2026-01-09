@@ -179,7 +179,7 @@ export class GameRoom {
 
 		// if no drawerID that means he already left the game
 		if (this.drawerId)
-			// TODO: calculate score for drawer based on the number of correct guessers
+			// TODO: need more refined calculation for drawer score
 			this.correctGuessers.set(
 				this.drawerId as string,
 				Math.floor(this.getPlayerPercent("guessed")),
@@ -218,8 +218,12 @@ export class GameRoom {
 		// choose a drawer
 		const drawerId = this.remainingPlayers.shift();
 		const drawer = this.players.get(drawerId as string);
-		if (!drawerId || !drawer) {
-			//TODO: if no drawer is found, end the match
+		if (!drawerId) {
+			this.endRound();
+			return;
+		}
+		if (!drawer) {
+			this.chooseDrawer();
 			return;
 		}
 
