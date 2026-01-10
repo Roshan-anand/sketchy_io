@@ -8,7 +8,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import type { OneSetting, Setting } from "@/lib/types";
+import { Domain, type OneSetting, type Setting } from "@/lib/types";
 import { socketConErr } from "@/lib/utils";
 import useGameStore from "@/store/gameStore";
 import useSocketStore from "@/store/socketStore";
@@ -16,38 +16,50 @@ import { Button } from "../ui/button";
 import { CardContent, CardFooter } from "../ui/card";
 import { Label } from "../ui/label";
 
-type Options = {
+type Options<T> = {
 	name: string;
-	values: string[];
-	key: keyof Setting;
+	values: T[keyof T][];
+	key: keyof T;
 };
 
 export function GameSettings() {
 	const { roomId, players, isHost, settings, setSettings } = useGameStore();
 	const { socket } = useSocketStore();
 
-	const options: Options[] = [
+	const options: Options<Setting>[] = [
 		{
 			name: "Total Players",
-			values: ["4", "6", "8", "10", "12"],
+			values: [4, 6, 8, 10, 12],
 			key: "totalPlayers",
 		},
 		{
 			name: "Max Rounds",
-			values: ["1", "2", "3", "4", "5", "6"],
+			values: [1, 2, 3, 4, 5, 6],
 			key: "maxRounds",
 		},
 		{
 			name: "Draw Time (s)",
-			values: ["5", "60", "80", "100", "120", "150"],
+			values: [5, 60, 80, 100, 120, 150],
 			key: "drawTime",
 		},
 		{
 			name: "Hints",
-			values: ["1", "2", "3", "4", "5"],
+			values: [1, 2, 3, 4, 5],
 			key: "hints",
 		},
-		{ name: "choices", values: ["2", "3", "5"], key: "choiceCount" },
+		{ name: "choices", values: [2, 3, 5], key: "choiceCount" },
+		{
+			name: "theme",
+			values: [
+				Domain.ANIMALS,
+				Domain.FOOD,
+				Domain.ITEMS,
+				Domain.OTHERS,
+				Domain.PROFESSIONS,
+				Domain.ALL,
+			],
+			key: "theme",
+		},
 	];
 
 	// Start game with selected settings
@@ -92,14 +104,13 @@ export function GameSettings() {
 						<Select
 							value={settings[key].toString()}
 							onValueChange={(value) => {
-								setSettings({
-									[key]: parseInt(value, 10),
-								} as OneSetting);
+								const setting = {
+									[key]:
+										key === "theme" ? (value as Domain) : parseInt(value, 10),
+								} as OneSetting;
+								setSettings(setting);
 
-								if (socket)
-									socket.emit("updateSettings", {
-										[key]: parseInt(value, 10),
-									} as OneSetting);
+								if (socket) socket.emit("updateSettings", setting);
 							}}
 						>
 							<SelectTrigger className="w-1/2" disabled={!isHost}>
@@ -107,7 +118,7 @@ export function GameSettings() {
 							</SelectTrigger>
 							<SelectContent>
 								{values.map((val) => (
-									<SelectItem value={val} key={val}>
+									<SelectItem value={val.toString()} key={val}>
 										{val}
 									</SelectItem>
 								))}

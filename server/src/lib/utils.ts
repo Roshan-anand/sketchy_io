@@ -13,6 +13,8 @@ export const generateId = (size: number) => {
 	return id;
 };
 
-export const gameSleep = async (ms: number) => {
-	await new Promise((resolve) => setTimeout(resolve, ms));
+/** get random value from the given array */
+export const getRandomArrVal = <T>(arr: T[]): T => {
+	const ranLen = Math.floor(Math.random() * arr.length);
+	return arr[ranLen];
 };

@@ -1,6 +1,7 @@
 import { io } from "../config/socket";
 import {
 	ChatMode,
+	Domain,
 	GameStatus,
 	type GameType,
 	MatchStatus,
@@ -25,17 +26,16 @@ export class GameRoom {
 	private type: GameType;
 	private _hostId: string;
 
-	/** default setting */
-	private defaultSettings: Setting = {
+	// default game data
+	private status: GameStatus = GameStatus.WAITING;
+	private settings: Setting = {
 		totalPlayers: 8,
 		maxRounds: 3,
 		drawTime: 80,
 		hints: 2,
 		choiceCount: 3,
+		theme: Domain.ALL,
 	};
-
-	private status: GameStatus = GameStatus.WAITING;
-	private settings: Setting = this.defaultSettings;
 	private durationPercent: DurationList = {
 		seventy: 0,
 		fourty: 0,
@@ -233,6 +233,7 @@ export class GameRoom {
 		this.matchStatus = MatchStatus.CHOOSING;
 		const choices = this.wordCuration.getCuratedWords(
 			this.settings.choiceCount,
+			this.settings.theme,
 		);
 
 		// emit word choice
@@ -294,7 +295,6 @@ export class GameRoom {
 		// set all values to default
 		this.status = GameStatus.WAITING;
 		this.matchStatus = MatchStatus.NONE;
-		this.settings = this.defaultSettings;
 		this.round = 0;
 		this.players.forEach((player) => {
 			player.score = 0;

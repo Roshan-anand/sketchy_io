@@ -21,19 +21,15 @@ Note: If a task number is missing from the summary it is listed with a more deta
 - [ ] F11: Tutorial for new users
 - [ ] F12: Spy Mode
 - [ ] F13: AI generated words
-- [ ] F16: Custom theme (eg. animals, fruits)
 - [ ] F17: In game voice chat
 - [ ] F18: powerups (eg. letter hint, blank other players for few sec)
 
 ---
 
 # Task breakdown
- - [ ] F6: Game room settings
-   - [ ] T1: Custom words
 
-- [ ] F8: choosing word
-  - [ ] T1: settings options for number of words to choose from.
-  - [ ] T2: curating word list for selection.
+- [ ] F6: Game room settings
+   - [ ] T1: Custom words
 
 - [ ] F8: Drawing Board
   - [ ] T1: Real-time drawing

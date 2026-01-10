@@ -1,13 +1,9 @@
-export enum Domain {
-	ANIMALS,
-	PROFESSIONS,
-	ITEMS,
-	FOOD,
-	OTHERS,
-}
-// const
+import { Domain } from "../lib/types";
+
 type Words = Record<Domain, string[]>;
 
+// TODO : curate better words
+// TODO : expand word list
 export const sketchyWords: Words = {
 	[Domain.ANIMALS]: [
 		"cat",
@@ -71,16 +67,12 @@ export const sketchyWords: Words = {
 		"milk",
 		"egg",
 		"chicken",
-		"beef",
 		"fish",
 		"salad",
 		"soup",
 		"yogurt",
 	],
 	[Domain.OTHERS]: [
-		"red",
-		"blue",
-		"green",
 		"happy",
 		"sad",
 		"fast",
@@ -94,4 +86,7 @@ export const sketchyWords: Words = {
 		"strong",
 		"weak",
 	],
+	[Domain.ALL]: [], // placeholder for all domains
 };
+
+export const sketchyWordsKey = Object.keys(sketchyWords) as Domain[];

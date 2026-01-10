@@ -67,6 +67,7 @@ export type Setting = {
 	drawTime: number;
 	hints: number;
 	choiceCount: number;
+	theme: Domain;
 };
 
 export type OneSetting = {
@@ -168,3 +169,12 @@ export type TypedScoket = Socket<
 >;
 
 export type TypedIo = Server<ClientSentEvents, ServerSentEvents>;
+
+export enum Domain {
+	ANIMALS = "Animals",
+	PROFESSIONS = "Professions",
+	ITEMS = "Items",
+	FOOD = "Food",
+	OTHERS = "Others",
+	ALL = "All",
+}
