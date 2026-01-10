@@ -17,19 +17,23 @@ export function PlayerInput({ className }: ComponentProps<"section">) {
 	// to listen for incoming chat msgs from server
 	useEffect(() => {
 		if (!socket || socket.hasListeners("chatMsg")) return;
-		socket.on("chatMsg", (msg) => {
-			addChatMsg(msg);
-			// scroll to bottom
-			const list = listRef.current;
-			if (!list) return;
-			list.scrollTop = list.scrollHeight;
-		});
+		socket.on("chatMsg", (msg) => addChatMsg(msg));
 
 		socket.on("guessed", (word) => setGuessed(word));
 		return () => {
 			socket.off("chatMsg");
+			socket.off("guessed");
 		};
 	}, [socket, setGuessed, addChatMsg]);
+
+	// scroll to bottom logic for chat message
+	useEffect(() => {
+		if (!chatMsgs) return;
+		const list = listRef.current;
+		if (!list) return;
+		list.scrollTop = list.scrollHeight;
+		list.scroll;
+	}, [chatMsgs]);
 
 	return (
 		<Card

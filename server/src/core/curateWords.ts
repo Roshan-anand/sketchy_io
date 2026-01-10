@@ -16,15 +16,16 @@ export class WordsCuration {
 	 * @param domain optional domain to filter words
 	 */
 	getCuratedWords(len: number, domain: Domain): string[] {
-		const curatedWords: string[] = [];
-		while (curatedWords.length < len) {
+		const curatedWords = new Set<string>();
+		while (curatedWords.size < len) {
 			// pick random domain if domain is ALL
 			const currDomain =
 				domain === Domain.ALL ? getRandomArrVal(sketchyWordsKey) : domain;
 
 			const word = getRandomArrVal(sketchyWords[currDomain]);
-			if (!this.GuessedWords.has(word)) curatedWords.push(word);
+			if (!this.GuessedWords.has(word) || !curatedWords.has(word))
+				curatedWords.add(word);
 		}
-		return curatedWords;
+		return Array.from(curatedWords);
 	}
 }
