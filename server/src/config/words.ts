@@ -86,7 +86,6 @@ export const sketchyWords: Words = {
 		"strong",
 		"weak",
 	],
-	[Domain.ALL]: [], // placeholder for all domains
 };
 
 export const sketchyWordsKey = Object.keys(sketchyWords) as Domain[];

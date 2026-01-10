@@ -1,7 +1,6 @@
 import { io } from "../config/socket";
 import {
 	ChatMode,
-	Domain,
 	GameStatus,
 	type GameType,
 	MatchStatus,
@@ -11,6 +10,7 @@ import {
 	type RoomUtilData,
 	type Setting,
 } from "../lib/types";
+import { getRandomArrVal } from "../lib/utils";
 import { WordsCuration } from "./curateWords";
 import { GameTimer } from "./gameTimer";
 
@@ -34,8 +34,9 @@ export class GameRoom {
 		drawTime: 80,
 		hints: 2,
 		choiceCount: 3,
-		theme: Domain.ALL,
+		theme: "All",
 	};
+
 	private durationPercent: DurationList = {
 		seventy: 0,
 		fourty: 0,
@@ -218,7 +219,8 @@ export class GameRoom {
 	/** chooses a random player as drawer */
 	private chooseDrawer() {
 		// choose a drawer
-		const drawerId = this.remainingPlayers.shift();
+		// const drawerId = this.remainingPlayers.shift();
+		const drawerId = getRandomArrVal(this.remainingPlayers);
 		const drawer = this.players.get(drawerId as string);
 		if (!drawerId) {
 			this.endRound();
@@ -413,12 +415,12 @@ export class GameRoom {
 			const timeLeft = this.gameTimer.getTimeLeft();
 			let newTimeLeft: number | undefined;
 
-			if (notGuessed <= 70 && timeLeft > this.durationPercent.seventy)
-				newTimeLeft = this.durationPercent.seventy;
+			if (notGuessed <= 10 && timeLeft > this.durationPercent.ten)
+				newTimeLeft = this.durationPercent.ten;
 			else if (notGuessed <= 40 && timeLeft > this.durationPercent.fourty)
 				newTimeLeft = this.durationPercent.fourty;
-			else if (notGuessed <= 10 && timeLeft > this.durationPercent.ten)
-				newTimeLeft = this.durationPercent.ten;
+			else if (notGuessed <= 70 && timeLeft > this.durationPercent.seventy)
+				newTimeLeft = this.durationPercent.seventy;
 
 			if (newTimeLeft) {
 				io.to(this.roomId).emit("reduceTime", newTimeLeft);

@@ -1,5 +1,5 @@
 import { sketchyWords, sketchyWordsKey } from "../config/words";
-import { Domain } from "../lib/types";
+import type { SettingTheme } from "../lib/types";
 import { getRandomArrVal } from "../lib/utils";
 
 export class WordsCuration {
@@ -15,15 +15,15 @@ export class WordsCuration {
 	 * @param len length of words to fetch
 	 * @param domain optional domain to filter words
 	 */
-	getCuratedWords(len: number, domain: Domain): string[] {
+	getCuratedWords(len: number, domain: SettingTheme): string[] {
 		const curatedWords = new Set<string>();
 		while (curatedWords.size < len) {
 			// pick random domain if domain is ALL
 			const currDomain =
-				domain === Domain.ALL ? getRandomArrVal(sketchyWordsKey) : domain;
+				domain !== "All" ? domain : getRandomArrVal(sketchyWordsKey);
 
 			const word = getRandomArrVal(sketchyWords[currDomain]);
-			if (!this.GuessedWords.has(word) || !curatedWords.has(word))
+			if (!this.GuessedWords.has(word) && !curatedWords.has(word))
 				curatedWords.add(word);
 		}
 		return Array.from(curatedWords);

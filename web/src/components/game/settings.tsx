@@ -49,14 +49,14 @@ export function GameSettings() {
 		},
 		{ name: "choices", values: [2, 3, 5], key: "choiceCount" },
 		{
-			name: "theme",
+			name: "Theme",
 			values: [
 				Domain.ANIMALS,
 				Domain.FOOD,
 				Domain.ITEMS,
 				Domain.OTHERS,
 				Domain.PROFESSIONS,
-				Domain.ALL,
+				"All",
 			],
 			key: "theme",
 		},

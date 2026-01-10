@@ -3,7 +3,6 @@ import {
 	CanvaState,
 	type ChatMsg,
 	type choiceData,
-	Domain,
 	GameState,
 	MatchStatus,
 	type OneSetting,
@@ -72,7 +71,7 @@ const useGameStore = create<Store>()((set, get) => ({
 		drawTime: 80,
 		hints: 2,
 		choiceCount: 3,
-		theme: Domain.ALL,
+		theme: "All",
 	},
 	setPlayers: (players) => set({ players: players }),
 	setSettings: (oneSetting) =>

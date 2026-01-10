@@ -71,7 +71,7 @@ export type Setting = {
 	drawTime: number;
 	hints: number;
 	choiceCount: number;
-	theme: Domain;
+	theme: SettingTheme;
 };
 
 export type OneSetting = {
@@ -169,5 +169,6 @@ export enum Domain {
 	ITEMS = "Items",
 	FOOD = "Food",
 	OTHERS = "Others",
-	ALL = "All",
 }
+
+export type SettingTheme = Domain | "All";
