@@ -1,5 +1,4 @@
 import { describe, expect, test } from "bun:test";
-import { WordsCuration } from "../src/core/curateWords";
 import { generateId } from "../src/lib/utils";
 
 describe("generate id", () => {

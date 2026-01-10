@@ -34,8 +34,10 @@ export const joinRoom = (ws: TypedScoket, name: string, roomId: string) => {
 	const room = GameRoomsHub.get(roomId);
 
 	if (!room) {
-		emitErr(ws, "join a random room");
+		emitErr(ws, "invalid room id");
+		ws.disconnect();
 		// TODO : join a random room logic
+		// emitErr(ws, "join a random room");
 		return;
 	}
 

@@ -75,11 +75,11 @@ function CanvaUtils() {
 	return (
 		<CardContent className="flex flex-col justify-center items-center flex-1">
 			{canvaState === CanvaState.CHOOSE && (
-				<h1>
+				<h1 className="flex flex-col items-center ">
 					{matchUtils.isDrawer ? (
 						<>
 							<div>Your are choosing</div>
-							<ul className="flex gap-2 my-2">
+							<ul className="flex flex-wrap justify-center gap-2 my-2">
 								{matchUtils.choices?.map((word) => (
 									<Button
 										key={word}
