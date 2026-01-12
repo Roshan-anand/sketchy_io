@@ -135,3 +135,6 @@ function ScoreRule() {
 		</section>
 	);
 }
+
+
+

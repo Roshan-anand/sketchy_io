@@ -1,5 +1,8 @@
 import type { Socket } from "socket.io-client";
 
+// Character types
+export type CharacterType = "kirb" | "character1" | "character2";
+
 // Types for drawing
 export type Tool = "pen" | "eraser" | "fill";
 
@@ -24,10 +27,12 @@ export enum GameEntryType {
 export type WsAuth =
 	| {
 			name: string;
+			character: CharacterType;
 			type: GameEntryType.CREATE;
 	  }
 	| {
 			name: string;
+			character: CharacterType;
 			type: GameEntryType.JOIN;
 			roomId: string;
 	  };
@@ -58,6 +63,7 @@ export type Player = {
 	id: string;
 	name: string;
 	score: number;
+	character?: string;
 };
 
 export type ScoreBoard = {

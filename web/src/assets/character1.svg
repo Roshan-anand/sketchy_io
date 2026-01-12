@@ -1,0 +1,33 @@
+<svg width="100" height="100" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .character { fill: #4A90E2; stroke: #2171B5; stroke-width: 2; }
+      .eye { fill: #FFFFFF; }
+      .pupil { fill: #000000; }
+      .mouth { fill: none; stroke: #000000; stroke-width: 2; stroke-linecap: round; }
+    </style>
+  </defs>
+
+  <!-- Head -->
+  <circle cx="50" cy="40" r="25" class="character" />
+
+  <!-- Eyes -->
+  <circle cx="42" cy="35" r="3" class="eye" />
+  <circle cx="58" cy="35" r="3" class="eye" />
+  <circle cx="42" cy="35" r="1.5" class="pupil" />
+  <circle cx="58" cy="35" r="1.5" class="pupil" />
+
+  <!-- Mouth -->
+  <path d="M 40 45 Q 50 52 60 45" class="mouth" />
+
+  <!-- Body -->
+  <rect x="35" y="65" width="30" height="25" rx="15" class="character" />
+
+  <!-- Arms -->
+  <rect x="20" y="70" width="20" height="8" rx="4" class="character" />
+  <rect x="60" y="70" width="20" height="8" rx="4" class="character" />
+
+  <!-- Legs -->
+  <rect x="40" y="90" width="8" height="15" rx="4" class="character" />
+  <rect x="52" y="90" width="8" height="15" rx="4" class="character" />
+</svg>

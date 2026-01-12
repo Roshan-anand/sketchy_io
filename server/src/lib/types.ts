@@ -24,10 +24,12 @@ export enum GameEntryType {
 export type WsAuth =
 	| {
 			name: string;
+			character: CharacterType;
 			type: GameEntryType.CREATE;
 	  }
 	| {
 			name: string;
+			character: CharacterType;
 			type: GameEntryType.JOIN;
 			roomId: string;
 	  };
@@ -50,10 +52,14 @@ export enum MatchStatus {
 	NONE,
 }
 
+// Character types
+export type CharacterType = "kirb" | "character1" | "character2";
+
 export type Player = {
 	id: string;
 	name: string;
 	score: number;
+	character?: CharacterType;
 };
 
 export type ScoreBoard = {
