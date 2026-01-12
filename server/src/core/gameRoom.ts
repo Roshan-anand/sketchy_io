@@ -82,12 +82,12 @@ export class GameRoom {
 	}
 
 	/** add a player to the room */
-	addPlayer({ id, name }: { id: string; name: string }): RoomJoinedData | null {
+	addPlayer({ id, name, character }: { id: string; name: string; character?: string }): RoomJoinedData | null {
 		if (this.playerCount > this.settings.totalPlayers) {
 			return null;
 		}
 
-		this.players.set(id, { id, name, score: 0 });
+		this.players.set(id, { id, name, score: 0, character });
 
 		let data: RoomUtilData = { matchStatus: MatchStatus.NONE };
 		if (this.matchStatus === MatchStatus.DRAWING)

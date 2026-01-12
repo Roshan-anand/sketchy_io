@@ -30,7 +30,7 @@ import { broadcastTotalMembers, emitErr } from "./utils";
 //   // });
 // };
 
-export const joinRoom = (ws: TypedScoket, name: string, roomId: string) => {
+export const joinRoom = (ws: TypedScoket, name: string, roomId: string, character?: string) => {
 	const room = GameRoomsHub.get(roomId);
 
 	if (!room) {
@@ -40,7 +40,7 @@ export const joinRoom = (ws: TypedScoket, name: string, roomId: string) => {
 	}
 
 	// else join the user to the room
-	const roomData = room.addPlayer({ id: ws.id, name });
+	const roomData = room.addPlayer({ id: ws.id, name, character });
 
 	if (!roomData) {
 		emitErr(ws, "room is full");
@@ -60,10 +60,10 @@ export const joinRoom = (ws: TypedScoket, name: string, roomId: string) => {
 	ws.join(roomId);
 };
 
-export const createRoom = (ws: TypedScoket, name: string) => {
+export const createRoom = (ws: TypedScoket, name: string, character?: string) => {
 	const roomId = generateId(6);
 	const room = new GameRoom(GameType.PRIVATE, roomId, ws.id); // create a private room instance
-	room.addPlayer({ id: ws.id, name });
+	room.addPlayer({ id: ws.id, name, character });
 
 	GameRoomsHub.set(roomId, room);
 	ws.data = { name, roomId };
