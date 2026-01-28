@@ -1,13 +1,14 @@
 import { FaGithub } from "react-icons/fa";
-import { ModeToggle } from "./mode-toggle";
 import { Button } from "./ui/button";
 
 export function RootHeader() {
 	return (
 		<header className="flex items-center gap-4 px-2">
-			<div className="font-bold">Sketchy.io</div>
+			<h1 className="font-bold text-accent bg-secondary px-2 -rotate-1">
+				<span className="rotate-1">Sketchy.io</span>
+			</h1>
 			<Button
-				variant={"outline"}
+				variant={"muted"}
 				className="ml-auto"
 				onClick={() =>
 					window.open(
@@ -20,7 +21,6 @@ export function RootHeader() {
 			>
 				<FaGithub />
 			</Button>
-			<ModeToggle />
 		</header>
 	);
 }

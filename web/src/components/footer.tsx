@@ -11,8 +11,8 @@ import { Card, CardContent, CardHeader } from "./ui/card";
 
 export function RootFooter() {
 	return (
-		<footer className="mt-auto flex px-1 gap-2 flex-col md:flex-row">
-			<Card>
+		<footer className="mt-auto flex justify-center items-center px-1 gap-2 flex-col md:flex-row">
+			<Card className="max-w-[500px] h-full">
 				<CardHeader className="flex justify-center">
 					<Info />
 					<h1>About</h1>
@@ -33,7 +33,7 @@ export function RootFooter() {
 					</h3>
 				</CardContent>
 			</Card>
-			<Card className="min-w-1/2">
+			<Card className="max-w-[500px] h-full">
 				<CardContent className="size-full flex flex-col gap-2  text-center ">
 					<header>How to play </header>
 					<Carousel

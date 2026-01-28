@@ -4,6 +4,7 @@ import { GameEntryType, GameState } from "@/lib/types";
 import useGameStore from "@/store/gameStore";
 import useSocketStore from "@/store/socketStore";
 import { Button } from "./ui/button";
+import { Card } from "./ui/card";
 import { Input } from "./ui/input";
 
 export function PlayerOnboard() {
@@ -31,18 +32,18 @@ export function PlayerOnboard() {
 
 	return (
 		<section className="flex-1 flex justify-center items-center">
-			<form className="flex flex-col gap-2 p-2">
+			<Card className="flex flex-col gap-2 p-2">
 				<Input
 					ref={nameRef}
 					defaultValue={localStorage.getItem("sketchy_name") || ""}
 					type="text"
 					placeholder="Enter your name"
-					className="outline-none ring-0"
 				/>
 				<figure>Character</figure>
 				{roomId !== "" && (
 					<Button
 						type="button"
+						variant={"muted"}
 						onClick={() => handleSubmit(GameEntryType.JOIN)}
 					>
 						Join Room
@@ -50,12 +51,12 @@ export function PlayerOnboard() {
 				)}
 				<Button
 					type="button"
-					variant={"secondary"}
+					variant={"primary"}
 					onClick={() => handleSubmit(GameEntryType.CREATE)}
 				>
 					Create Private Room
 				</Button>
-			</form>
+			</Card>
 		</section>
 	);
 }
