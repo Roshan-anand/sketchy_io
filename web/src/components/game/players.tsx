@@ -9,8 +9,9 @@ export function PlayersInfo({ className }: ComponentProps<"section">) {
 	const { players, hostId } = useGameStore();
 	const { socket } = useSocketStore();
 	return (
-		<Card className={cn("flex flex-col gap-2 p-1 h-fit", className)}>
+		<Card className={cn("flex flex-col gap-2 p-1 ", className)}>
 			<CardContent className="">
+				<h1 className="font-bold">Players</h1>
 				<ul>
 					{players.map(({ name, score, id }, i) => {
 						return (

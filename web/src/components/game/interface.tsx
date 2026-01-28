@@ -18,12 +18,12 @@ export function GameInterface() {
 					<Spinner className="size-[30%] max-w-25 " />
 				</div>
 			) : (
-				<div className="w-[clamp(500px,100%,1000px)] h-[clamp(500px,100%,900px)] flex flex-col gap-2 py-2">
+				<div className="size-full flex flex-col p-2">
 					<GameInfo className="" />
-					<span className="flex-1 flex gap-2">
-						<PlayersInfo className="flex-1" />
-						<GameCanva className="w-[55%]" />
-						<PlayerInput className="flex-2" />
+					<span className="flex-1 flex">
+						<PlayersInfo className="flex-1 shadow border-4" />
+						<GameCanva className="flex-4" />
+						<PlayerInput className="flex-1 shadow border-4" />
 					</span>
 				</div>
 			)}

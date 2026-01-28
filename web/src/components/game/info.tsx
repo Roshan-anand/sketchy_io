@@ -62,7 +62,7 @@ export function GameInfo({ className }: ComponentProps<"div">) {
 	}, [canvaState, matchTimer, emitChoiceMade, clearTimer, setGameIntervalId]);
 
 	return (
-		<Card className={cn("h-fit py-1", className)}>
+		<Card className={cn("h-fit py-1 ", className)}>
 			<CardHeader className="gap-2 flex items-center justify-center">
 				<div className="flex flex-col items-center gap-[3px]">
 					<span className="bg-foreground w-2.5 h-1.5 rounded-md" />
@@ -80,7 +80,7 @@ export function GameInfo({ className }: ComponentProps<"div">) {
 							? matchUtils.word
 							: matchUtils.hiddenWord?.join(" ")}
 				</h3>
-				<Button variant={"link"}>
+				<Button variant={"primary"} className="shadow rounded-md">
 					<Settings className="icon-lg" />
 				</Button>
 			</CardHeader>

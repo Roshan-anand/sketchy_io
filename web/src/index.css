@@ -126,6 +126,7 @@
 	h1 {
 		font-size: clamp(1.05rem, calc(1.05rem + 0.27vw), 1.68rem);
 		line-height: 1.25;
+		font-weight: bold;
 	}
 
 	h3 {

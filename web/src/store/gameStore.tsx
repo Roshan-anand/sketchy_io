@@ -123,7 +123,7 @@ const useGameStore = create<Store>()((set, get) => ({
 	addChatMsg: (msgs) => {
 		const { chatMsgs } = get();
 
-		const oldMsgs = chatMsgs.length >= 20 ? chatMsgs.slice(5) : chatMsgs;
+		const oldMsgs = chatMsgs.length >= 25 ? chatMsgs.slice(5) : chatMsgs;
 		set({ chatMsgs: [...oldMsgs, msgs] });
 	},
 	setMatchTimer: (time) => set({ matchTimer: time }),

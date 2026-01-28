@@ -38,11 +38,11 @@ export function PlayerInput({ className }: ComponentProps<"section">) {
 	return (
 		<Card
 			className={cn(
-				"border rounded-md max-h-[500px] flex flex-col p-0 gap-0",
+				"border flex flex-col justify-between p-0 gap-0",
 				className,
 			)}
 		>
-			<CardContent className="flex-1 max-h-[85%]">
+			<CardContent className="flex-1">
 				<ul
 					ref={listRef}
 					className="h-full overflow-y-auto mb-2 flex flex-col gap-1"
@@ -63,7 +63,7 @@ export function PlayerInput({ className }: ComponentProps<"section">) {
 					})}
 				</ul>
 			</CardContent>
-			<CardFooter className="min-h-20 ">
+			<CardFooter className="py-4">
 				<Input
 					disabled={matchUtils.isDrawer || !canType}
 					onKeyDown={(e) => {

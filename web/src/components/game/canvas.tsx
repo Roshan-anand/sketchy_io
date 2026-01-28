@@ -11,28 +11,35 @@ import { GameSettings } from "./settings";
 export function GameCanva({ className }: ComponentProps<"div">) {
 	const { canvaState } = useGameStore();
 	return (
-		<Card className={cn("min-h-75 p-0 m-0", className)}>
-			{canvaState === CanvaState.SETTINGS ? (
-				<GameSettings />
-			) : canvaState === CanvaState.DRAW ? (
+		<div className={cn("h-full flex flex-col", className)}>
+			{canvaState === CanvaState.DRAW ? (
 				<DrawingBoard />
-			) : canvaState === CanvaState.SCORE_BOARD ? (
-				<ScoreBoard />
-			) : canvaState === CanvaState.WINNER ? (
-				<GameResult />
 			) : (
-				<CanvaUtils />
+				<>
+					<Card className={cn("min-h-75 p-0 m-2 rounded-md", className)}>
+						{canvaState === CanvaState.SETTINGS ? (
+							<GameSettings />
+						) : canvaState === CanvaState.SCORE_BOARD ? (
+							<ScoreBoard />
+						) : canvaState === CanvaState.WINNER ? (
+							<GameResult />
+						) : (
+							<CanvaUtils />
+						)}
+					</Card>
+					<Card className="shadow border-4 border-border" />
+				</>
 			)}
-		</Card>
+		</div>
 	);
 }
 
 function ScoreBoard() {
 	const { scoreBoard } = useGameStore();
 	return (
-		<CardContent className="flex flex-col justify-center items-center flex-1">
-			<h3>Score Board</h3>
-			<p>The word was: {scoreBoard.word}</p>
+		<CardContent className="size-full flex flex-col justify-center items-center ">
+			<h1>Score Board</h1>
+			<h3>The word was: {scoreBoard.word}</h3>
 			<ul>
 				{scoreBoard.scores.map(({ name, score }, i) => {
 					const key = `${name}+${i}`;
@@ -75,7 +82,7 @@ function CanvaUtils() {
 	return (
 		<CardContent className="flex flex-col justify-center items-center flex-1">
 			{canvaState === CanvaState.CHOOSE && (
-				<h1 className="flex flex-col items-center ">
+				<h1 className="flex flex-col items-center font-bold">
 					{matchUtils.isDrawer ? (
 						<>
 							<div>Your are choosing</div>
@@ -83,7 +90,7 @@ function CanvaUtils() {
 								{matchUtils.choices?.map((word) => (
 									<Button
 										key={word}
-										variant={"outline"}
+										variant={"muted"}
 										onClick={() => {
 											if (!socket) socketConErr();
 											else {

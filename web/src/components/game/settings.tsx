@@ -113,10 +113,10 @@ export function GameSettings() {
 								if (socket) socket.emit("updateSettings", setting);
 							}}
 						>
-							<SelectTrigger className="w-1/2" disabled={!isHost}>
+							<SelectTrigger className="w-1/2 font-semibold" disabled={!isHost}>
 								<SelectValue />
 							</SelectTrigger>
-							<SelectContent>
+							<SelectContent className="bg-background border-4 font-semibold border-border">
 								{values.map((val) => (
 									<SelectItem value={val.toString()} key={val}>
 										{val}
@@ -127,18 +127,19 @@ export function GameSettings() {
 					</div>
 				))}
 			</CardContent>
-			<CardFooter className="flex gap-2">
+			<CardFooter className="flex  justify-center gap-2">
 				<Button
 					disabled={!isHost}
-					variant={"secondary"}
+					variant={"primary"}
 					onClick={handleStart}
-					className="w-[70%]"
+					className="w-[70%] max-w-[300px]"
 				>
 					Start
 				</Button>
 				<Button
 					onClick={handleCopy}
-					className="flex-1 flex items-center gap-2 p-1"
+					variant={"muted"}
+					className="h-full w-[30%] max-w-[150px]"
 				>
 					<p>Invite</p>
 					<Copy />

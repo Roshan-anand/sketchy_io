@@ -6,7 +6,7 @@ import { Layer, Line, Rect, Stage } from "react-konva";
 import type { DrawAction, Stroke, Tool } from "@/lib/types";
 import useGameStore from "@/store/gameStore";
 import useSocketStore from "@/store/socketStore";
-import { CardContent, CardFooter } from "../ui/card";
+import { Card, CardFooter } from "../ui/card";
 import {
 	Select,
 	SelectContent,
@@ -250,7 +250,7 @@ export function DrawingBoard() {
 	// ===========================================
 
 	const Toolbar = () => (
-		<CardFooter className="h-[15%] min-h-24 flex items-center justify-between">
+		<CardFooter className="flex items-center justify-between bg-background border-4 border-border p-2 ">
 			{/* Stroke Width Select */}
 			<div className="flex gap-1">
 				<Select
@@ -360,61 +360,67 @@ export function DrawingBoard() {
 	);
 
 	return (
-		<CardContent className="flex flex-col p-1 h-full flex-1">
-			{/* Canvas Area - takes 85% when toolbar shown, 100% otherwise */}
-			<div
-				ref={canvasContainerRef}
-				className={`w-full ${isDrawer ? "h-[85%]" : "h-full"} rounded-md overflow-hidden bg-white`}
-			>
-				<Stage
-					ref={stageRef}
-					width={stageSize.width}
-					height={stageSize.height}
-					onMouseDown={handleMouseDown}
-					onMousemove={handleMouseMove}
-					onMouseup={handleMouseUp}
-					onMouseLeave={handleMouseUp}
-					onTouchStart={handleMouseDown}
-					onTouchMove={handleMouseMove}
-					onTouchEnd={handleMouseUp}
-					style={{
-						cursor: isDrawer ? "crosshair" : "default",
-					}}
+		<>
+			<Card className="flex flex-col p-1 m-2 rounded-xl flex-1">
+				{/* Canvas Area - takes 85% when toolbar shown, 100% otherwise */}
+				<div
+					ref={canvasContainerRef}
+					className={`size-full rounded-md overflow-hidden bg-white`}
 				>
-					<Layer>
-						{/* Background */}
-						<Rect
-							x={0}
-							y={0}
-							width={stageSize.width}
-							height={stageSize.height}
-							fill={backgroundColor}
-							listening={false}
-						/>
-
-						{/* Strokes */}
-						{strokes.map((stroke) => (
-							<Line
-								key={stroke.id}
-								points={stroke.points}
-								stroke={stroke.color}
-								strokeWidth={stroke.strokeWidth}
-								tension={0.5}
-								lineCap="round"
-								lineJoin="round"
-								globalCompositeOperation={
-									stroke.tool === "eraser" ? "destination-out" : "source-over"
-								}
+					<Stage
+						ref={stageRef}
+						width={stageSize.width}
+						height={stageSize.height}
+						onMouseDown={handleMouseDown}
+						onMousemove={handleMouseMove}
+						onMouseup={handleMouseUp}
+						onMouseLeave={handleMouseUp}
+						onTouchStart={handleMouseDown}
+						onTouchMove={handleMouseMove}
+						onTouchEnd={handleMouseUp}
+						style={{
+							cursor: isDrawer ? "crosshair" : "default",
+						}}
+					>
+						<Layer>
+							{/* Background */}
+							<Rect
+								x={0}
+								y={0}
+								width={stageSize.width}
+								height={stageSize.height}
+								fill={backgroundColor}
 								listening={false}
-								draggable={false}
 							/>
-						))}
-					</Layer>
-				</Stage>
-			</div>
 
-			{/* Toolbar - 15% height, only visible for drawer */}
-			{isDrawer && <Toolbar />}
-		</CardContent>
+							{/* Strokes */}
+							{strokes.map((stroke) => (
+								<Line
+									key={stroke.id}
+									points={stroke.points}
+									stroke={stroke.color}
+									strokeWidth={stroke.strokeWidth}
+									tension={0.5}
+									lineCap="round"
+									lineJoin="round"
+									globalCompositeOperation={
+										stroke.tool === "eraser" ? "destination-out" : "source-over"
+									}
+									listening={false}
+									draggable={false}
+								/>
+							))}
+						</Layer>
+					</Stage>
+				</div>
+
+				{/* Toolbar - 15% height, only visible for drawer */}
+			</Card>
+			{isDrawer ? (
+				<Toolbar />
+			) : (
+				<Card className="shadow border-border border-4" />
+			)}
+		</>
 	);
 }
