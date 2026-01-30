@@ -15,3 +15,8 @@ setup :
 	@clear && \
 	$(MAKE) hooks-install && \
 	$(MAKE) install
+
+build :
+	@clear && \
+	cd web && bun run build && \
+	cd ../server && bun run build
