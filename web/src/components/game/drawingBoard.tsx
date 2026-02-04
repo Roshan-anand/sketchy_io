@@ -263,7 +263,7 @@ export function DrawingBoard() {
 					<SelectContent
 						align="start"
 						position="popper"
-						className="w-fit min-w-0"
+						className="w-fit min-w-0 bg-accent"
 					>
 						{STROKE_WIDTHS.map((sw) => (
 							<SelectItem key={sw.value} value={sw.value}>
@@ -292,7 +292,7 @@ export function DrawingBoard() {
 					<SelectContent
 						align="start"
 						position="popper"
-						className="w-fit min-w-0"
+						className="w-fit min-w-0 bg-accent"
 					>
 						{COLORS.map((color) => (
 							<SelectItem

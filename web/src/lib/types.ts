@@ -25,11 +25,13 @@ export type WsAuth =
 	| {
 			name: string;
 			type: GameEntryType.CREATE;
+			char: number;
 	  }
 	| {
 			name: string;
 			type: GameEntryType.JOIN;
 			roomId: string;
+			char: number;
 	  };
 
 export enum GameState {
@@ -57,6 +59,7 @@ export enum CanvaState {
 export type Player = {
 	id: string;
 	name: string;
+	char: number;
 	score: number;
 };
 

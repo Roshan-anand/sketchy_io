@@ -62,13 +62,19 @@ function GameResult() {
 	const { players } = useGameStore();
 	return (
 		<CardContent className="flex flex-col justify-center items-center flex-1">
-			<h1>Game Over!</h1>
-			<ul>
-				{players.map(({ id, name, score }) => {
+			<h1 className="border-b-2 my-2">Game Over!</h1>
+			<ul className="flex flex-col gap-2">
+				{players.map(({ id, name, score, char }) => {
 					return (
-						<li key={id}>
-							{name} : {score}
-						</li>
+						<h3 key={id} className="flex items-center gap-3">
+							<span className="bg-accent rounded-md p-1">
+								<img src={`char/${char}.png`} className="icon-md" alt="char" />
+							</span>
+
+							<span>
+								{name} : {score}
+							</span>
+						</h3>
 					);
 				})}
 			</ul>

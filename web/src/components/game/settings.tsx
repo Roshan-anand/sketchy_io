@@ -100,7 +100,9 @@ export function GameSettings() {
 						key={key}
 						className="w-1/2 flex items-center justify-between p-2"
 					>
-						<Label>{name} :</Label>
+						<Label>
+							<h3>{name} :</h3>
+						</Label>
 						<Select
 							value={settings[key].toString()}
 							onValueChange={(value) => {

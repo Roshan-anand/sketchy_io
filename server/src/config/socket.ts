@@ -20,8 +20,9 @@ const GameRoomsHub = new Map<string, GameRoom>();
 
 io.on("connection", (socket: TypedScoket) => {
 	const auth = socket.handshake.auth as WsAuth;
-	if (auth.type === GameEntryType.CREATE) createRoom(socket, auth.name);
-	else joinRoom(socket, auth.name, auth.roomId);
+	if (auth.type === GameEntryType.CREATE)
+		createRoom(socket, auth.name, auth.char);
+	else joinRoom(socket, auth.name, auth.roomId, auth.char);
 
 	// register all the listeners
 	gameListeners(socket);

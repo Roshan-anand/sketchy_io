@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -121,6 +122,9 @@
 			#3f9ed4 0%,
 			rgba(63, 157, 212, 0.58) 100%
 		);
+		font-family: "Press Start 2P", system-ui, -apple-system, sans-serif;
+		image-rendering: pixelated;
+		image-rendering: crisp-edges;
 	}
 
 	h1 {
@@ -130,8 +134,9 @@
 	}
 
 	h3 {
-		font-size: clamp(0.7rem, calc(0.7rem + 0.12vw), 0.84rem);
+		font-size: clamp(0.84rem, calc(0.84rem + 0.144vw), 1.008rem);
 		font-family: var(--font-mono);
+		font-weight: 700;
 	}
 
 	p {
