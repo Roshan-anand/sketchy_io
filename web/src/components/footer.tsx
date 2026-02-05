@@ -34,8 +34,11 @@ export function RootFooter() {
 				</CardContent>
 			</Card>
 			<Card className="max-w-[500px] h-full">
-				<CardContent className="size-full flex flex-col gap-2  text-center ">
-					<header>How to play </header>
+				<CardHeader className="flex justify-center">
+					<Info />
+					<h1>How to play </h1>
+				</CardHeader>
+				<CardContent className="flex flex-col gap-2  text-center ">
 					<Carousel
 						plugins={[
 							Autoplay({
@@ -75,9 +78,9 @@ export function RootFooter() {
 function ChooseRule() {
 	return (
 		<section className="p-1 ">
-			<h1>
-				<span>CHOOSE A WORD!</span>
-				<span className="flex gap-2 justify-center my-2">
+			<span>
+				<h3>CHOOSE A WORD!</h3>
+				<h1 className="flex gap-2 justify-center my-2">
 					{["~~~", "Bat", "~~~"].map((val, i) => {
 						const key = i;
 						return (
@@ -86,9 +89,11 @@ function ChooseRule() {
 							</span>
 						);
 					})}
-				</span>
-			</h1>
-			<p>when it's your turn, choose a word you want to draw!</p>
+				</h1>
+			</span>
+			<h3 className="text-balance">
+				when it's your turn, choose a word you want to draw!
+			</h3>
 		</section>
 	);
 }
@@ -97,7 +102,9 @@ function DrawRule() {
 	return (
 		<section className="p-1">
 			<House className="mx-auto size-[100px]" />
-			<p>Try to draw your choosen word! No spelling!</p>
+			<h3 className="text-balance">
+				Try to draw your choosen word! No spelling!
+			</h3>
 		</section>
 	);
 }
@@ -109,7 +116,9 @@ function GuessRule() {
 				<User className="size-[70px]" />
 				<p className="border h-fit p-1 rounded-2xl rounded-bl-none">House</p>
 			</div>
-			<p>Let other players try to guess your drawn word!</p>
+			<h3 className="text-balance">
+				Let other players try to guess your drawn word!
+			</h3>
 		</section>
 	);
 }
