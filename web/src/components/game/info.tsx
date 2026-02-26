@@ -1,5 +1,6 @@
 import { Settings } from "lucide-react";
 import { type ComponentProps, useCallback, useEffect, useState } from "react";
+import { playAudio } from "@/lib/audios";
 import { CanvaState, GameState } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import useGameStore from "@/store/gameStore";
@@ -48,6 +49,7 @@ export function GameInfo({ className }: ComponentProps<"div">) {
 							clearTimer();
 							return 0;
 						}
+						if (prev < 15) playAudio("tick");
 						return prev - 1;
 					}),
 				1000,

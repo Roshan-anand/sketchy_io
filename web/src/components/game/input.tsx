@@ -1,4 +1,5 @@
 import { type ComponentProps, useEffect, useRef } from "react";
+import { playAudio } from "@/lib/audios";
 import { ChatMode } from "@/lib/types";
 import { cn, socketConErr } from "@/lib/utils";
 import useGameStore from "@/store/gameStore";
@@ -17,9 +18,15 @@ export function PlayerInput({ className }: ComponentProps<"section">) {
 	// to listen for incoming chat msgs from server
 	useEffect(() => {
 		if (!socket || socket.hasListeners("chatMsg")) return;
-		socket.on("chatMsg", (msg) => addChatMsg(msg));
+		socket.on("chatMsg", (msg) => {
+			addChatMsg(msg);
+			if (msg.mode === ChatMode.SYSTEM_SUCCESS) playAudio("playerGuessed");
+		});
 
-		socket.on("guessed", (word) => setGuessed(word));
+		socket.on("guessed", (word) => {
+			setGuessed(word);
+			playAudio("playerGuessed");
+		});
 		return () => {
 			socket.off("chatMsg");
 			socket.off("guessed");

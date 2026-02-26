@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { playAudio } from "@/lib/audios";
 import useGameStore from "@/store/gameStore";
 import useSocketStore from "@/store/socketStore";
 
@@ -14,17 +15,25 @@ const useGameService = () => {
 		setMatchTimer,
 		setHiddenWord,
 		setHost,
+		canType,
 	} = useGameStore();
 
 	useEffect(() => {
 		if (!socket || socket.hasListeners("roundInfo")) return;
 
-		socket.on("roundInfo", (round) => updateRound(round));
+		socket.on("roundInfo", (round) => {
+			updateRound(round);
+			playAudio("roundStart");
+		});
 		socket.on("choosing", (data) => setChoosingInfo(data));
 		socket.on("startMatch", (matchInfo, time) =>
 			setStartMatch(matchInfo, time),
 		);
-		socket.on("endMatch", (scoreBoard) => setEndMatch(scoreBoard));
+		socket.on("endMatch", (scoreBoard) => {
+			if (canType) playAudio("roundEndFailure");
+			else playAudio("roundEndSuccess");
+			setEndMatch(scoreBoard);
+		});
 		socket.on("results", (players) => setEndGame(players));
 		socket.on("restart", () => setRestart());
 		socket.on("reduceTime", (newTimer) => setMatchTimer(newTimer));
@@ -55,6 +64,7 @@ const useGameService = () => {
 		setMatchTimer,
 		setHiddenWord,
 		setHost,
+		canType,
 	]);
 };
 

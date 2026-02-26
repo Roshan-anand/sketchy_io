@@ -2,21 +2,28 @@ hooks-install :
 	pre-commit install && \
 	pre-commit run --all-files
 
-install :
-	cd web && bun i && \
-	cd ../server && bun i
+install-web :
+	cd web && bun i
 
-check :
-	@clear && \
-	cd web && bun check && \
-	cd ../server && bun check
+install-server :
+	cd server && bun i
 
-setup :
-	@clear && \
-	$(MAKE) hooks-install && \
-	$(MAKE) install
+install : install-web install-server
 
-build :
-	@clear && \
-	cd web && bun run build && \
-	cd ../server && bun run build
+check-web :
+	cd web && bun check
+
+check-server :
+	cd server && bun check
+
+check : check-web check-server
+
+setup : hooks-install install
+
+build-web:
+	cd web && bun run build
+
+build-server:
+	cd web && bun run build
+
+build : build-web build-server

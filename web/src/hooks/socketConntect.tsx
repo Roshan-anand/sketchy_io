@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { io } from "socket.io-client";
 import { toast } from "sonner";
+import { playAudio } from "@/lib/audios";
 import { GameState, type TypedSocket } from "@/lib/types";
 import useGameStore from "@/store/gameStore";
 import useSocketStore from "@/store/socketStore";
@@ -37,12 +38,16 @@ const useConnectSocket = () => {
 		socket.on("roomCreated", ({ roomId, players, hostId }) => {
 			window.history.replaceState({}, document.title, window.location.origin);
 			setEnterGame(roomId, players, hostId);
+			playAudio("join");
 		});
 
 		// listen for room join confirmation
 		socket.on(
 			"roomJoined",
-			(roomData) => setJoinGame(roomData),
+			(roomData) => {
+				setJoinGame(roomData);
+				playAudio("join");
+			},
 			// setEnterGame(GameState.WAITING, roomId, players, false, hostId),
 		);
 
