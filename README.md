@@ -3,6 +3,6 @@ sketchy.io is a free online multiplayer drawing and guessing pictionary game. A 
 Have fun!
 
 # Contribute
-For the time being We take contributions from our internal group. If your one of the memeber in our group, please check out our [Contribution Guide](Contributing.md) for setup instructions and guidelines.
+please check out our [Contribution Guide](Contributing.md) for setup instructions and guidelines.
 
-If your really intrested in contributing or want to join our group, then DM us on [twitter](https://twitter.com/r0shan_anand)
+If your intrested in contributing or want to join our community, then DM us on [twitter](https://twitter.com/r0shan_anand)
