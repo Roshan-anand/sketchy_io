@@ -1,4 +1,4 @@
-import { Eraser, Pencil, Trash2 } from "lucide-react";
+import { Eraser, PaintBucket, Pencil, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Tool } from "@/lib/types";
 import useGameStore from "@/store/gameStore";
@@ -69,6 +69,19 @@ export function DrawingBoard() {
 	};
 
 	const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+		// if tool is fill
+		if (tool === "fill") {
+			const canvas = canvasRef.current;
+			if (!canvas || !socket) return;
+
+			const ctx = getContext();
+			if (!ctx) return;
+			ctx.fillStyle = currentColor;
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			socket.emit("fillCanvas", currentColor);
+			return;
+		}
+
 		const pos = getCanvasCoordinates(e);
 		lastPosRef.current = pos;
 		setIsDrawing(true);
@@ -106,12 +119,10 @@ export function DrawingBoard() {
 		});
 
 		socket.emit("canvasData", {
-			type: "stroke",
 			from: normalize(from),
 			to: normalize(pos),
 			color: tool === "eraser" ? "#FFFFFF" : currentColor,
 			width: strokeWidth / canvas.width,
-			tool,
 		});
 	};
 
@@ -122,7 +133,7 @@ export function DrawingBoard() {
 		ctx.fillStyle = "#FFFFFF";
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-		socket?.emit("clearCanvas");
+		socket?.emit("fillCanvas", "#FFFFFF");
 	};
 
 	// for listening incomming canvas events
@@ -157,22 +168,22 @@ export function DrawingBoard() {
 			ctx.restore();
 		});
 
-		socket.on("clearCanvas", () => {
+		socket.on("fillCanvas", (color) => {
 			const canvas = canvasRef.current;
 			const ctx = getContext();
 			if (!canvas || !ctx) return;
 
-			ctx.fillStyle = "#FFFFFF";
+			ctx.fillStyle = color;
 			ctx.fillRect(0, 0, canvas.width, canvas.height);
 		});
 
 		return () => {
 			socket.off("canvasData");
-			socket.off("clearCanvas");
+			socket.off("fillCanvas");
 		};
 	}, [socket, getContext]);
 
-	// for setting canvas details
+	// base canvas setup
 	useEffect(() => {
 		const canvas = canvasRef.current;
 		if (!canvas) return;
@@ -267,14 +278,14 @@ export function DrawingBoard() {
 				>
 					<Eraser size={20} />
 				</button>
-				{/*<button
-	        type="button"
-	        onClick={() => setCurrentTool("fill")}
-	        className={`p-2 rounded ${tool === "fill" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
-	        title="Fill Background"
-	      >
-	        <PaintBucket size={20} />
-	      </button>*/}
+				<button
+					type="button"
+					onClick={() => setTool("fill")}
+					className={`p-2 rounded ${tool === "fill" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+					title="Fill Background"
+				>
+					<PaintBucket size={20} />
+				</button>
 			</div>
 
 			{/* Actions */}

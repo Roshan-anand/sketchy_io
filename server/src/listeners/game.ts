@@ -49,7 +49,7 @@ export const gameListeners = (ws: TypedScoket) => {
 	// to handle drawing data from drawer
 	ws.on("canvasData", (data) => ws.to(ws.data.roomId).emit("canvasData", data));
 
-	ws.on("clearCanvas", () => {
-		ws.to(ws.data.roomId).emit("clearCanvas");
+	ws.on("fillCanvas", (color) => {
+		ws.to(ws.data.roomId).emit("fillCanvas", color);
 	});
 };

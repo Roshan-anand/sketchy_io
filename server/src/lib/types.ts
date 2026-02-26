@@ -114,9 +114,7 @@ export type RoomUtilData =
 	  };
 export type RoomJoinedData = RoomData & { settings: Setting } & RoomUtilData;
 
-export type Tool = "pencil" | "eraser";
 export type CanvaData = {
-	type: string;
 	from: {
 		x: number;
 		y: number;
@@ -127,7 +125,6 @@ export type CanvaData = {
 	};
 	color: string;
 	width: number;
-	tool: Tool;
 };
 
 type ClientSentEvents = {
@@ -136,7 +133,7 @@ type ClientSentEvents = {
 	updateSettings: (setting: OneSetting) => void;
 	choiceMade: (choice: string) => void;
 	canvasData: (data: CanvaData) => void;
-	clearCanvas: () => void;
+	fillCanvas: (color: string) => void;
 };
 
 type ServerSentEvents = {
@@ -158,7 +155,7 @@ type ServerSentEvents = {
 	results: (scores: Player[]) => void;
 	restart: () => void;
 	canvasData: (data: CanvaData) => void;
-	clearCanvas: () => void;
+	fillCanvas: (color: string) => void;
 };
 
 type SocketData = {
