@@ -1,21 +1,5 @@
 import type { Socket } from "socket.io-client";
 
-// Types for drawing
-export type Tool = "pen" | "eraser" | "fill";
-
-export interface Stroke {
-	id: string;
-	tool: Tool;
-	points: number[];
-	color: string;
-	strokeWidth: number;
-}
-
-export interface DrawAction {
-	type: "stroke" | "fill" | "clear";
-	data: Stroke | { color: string } | null;
-}
-
 export enum GameEntryType {
 	CREATE,
 	JOIN,
@@ -135,12 +119,29 @@ type RoomUtilData =
 
 export type RoomJoinedData = RoomData & { settings: Setting } & RoomUtilData;
 
+export type Tool = "pencil" | "eraser";
+export type CanvaData = {
+	type: string;
+	from: {
+		x: number;
+		y: number;
+	};
+	to: {
+		x: number;
+		y: number;
+	};
+	color: string;
+	width: number;
+	tool: Tool;
+};
+
 type ClientSentEvents = {
 	startGame: (settings: Setting) => void;
 	chatMsg: (msg: string) => void;
 	updateSettings: (setting: OneSetting) => void;
 	choiceMade: (choice: string) => void;
-	drawingData: (data: DrawAction) => void;
+	canvasData: (data: CanvaData) => void;
+	clearCanvas: () => void;
 };
 
 type ServerSentEvents = {
@@ -161,7 +162,8 @@ type ServerSentEvents = {
 	endMatch: (scoreBoard: ScoreBoard) => void;
 	results: (scores: Player[]) => void;
 	restart: () => void;
-	drawingData: (data: DrawAction) => void;
+	canvasData: (data: CanvaData) => void;
+	clearCanvas: () => void;
 };
 
 export type TypedSocket = Socket<ServerSentEvents, ClientSentEvents>;

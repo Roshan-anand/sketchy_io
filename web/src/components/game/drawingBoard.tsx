@@ -1,9 +1,6 @@
-import type Konva from "konva";
-import type { KonvaEventObject } from "konva/lib/Node";
-import { Eraser, PaintBucket, Pencil, Trash2, Undo2 } from "lucide-react";
+import { Eraser, Pencil, Trash2 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Layer, Line, Rect, Stage } from "react-konva";
-import type { DrawAction, Stroke, Tool } from "@/lib/types";
+import type { Tool } from "@/lib/types";
 import useGameStore from "@/store/gameStore";
 import useSocketStore from "@/store/socketStore";
 import { Card, CardFooter } from "../ui/card";
@@ -17,22 +14,16 @@ import {
 
 // Predefined colors for the color palette
 const COLORS = [
-	{ value: "#000000" },
-	{ value: "#FFFFFF" },
-	{ value: "#FF0000" },
-	{ value: "#00FF00" },
-	{ value: "#0000FF" },
-	{ value: "#FFFF00" },
-	{ value: "#FF00FF" },
-	{ value: "#00FFFF" },
-	{ value: "#FFA500" },
-	{ value: "#800080" },
-	{ value: "#FFC0CB" },
-	{ value: "#A52A2A" },
-	{ value: "#808080" },
-	{ value: "#90EE90" },
-	{ value: "#ADD8E6" },
-	{ value: "#FFD700" },
+	"#000000", // Black
+	"#FFFFFF", // White
+	"#EF4444", // Red
+	"#F97316", // Orange
+	"#EAB308", // Yellow
+	"#22C55E", // Green
+	"#3B82F6", // Blue
+	"#8B5CF6", // Purple
+	"#EC4899", // Pink
+	"#78716C", // Brown
 ];
 
 // Stroke width options
@@ -44,206 +35,159 @@ const STROKE_WIDTHS = [
 	{ value: "20" },
 ];
 
-// Generate unique ID for strokes
-const generateId = () => Math.random().toString(36).substring(2, 9);
-
 export function DrawingBoard() {
 	const { matchUtils } = useGameStore();
 	const { socket } = useSocketStore();
 	const isDrawer = matchUtils.isDrawer;
 
-	// Canvas state
-	const [strokes, setStrokes] = useState<Stroke[]>([]);
-	const [backgroundColor, setBackgroundColor] = useState("#FFFFFF");
-
-	// Tool state
-	const [currentTool, setCurrentTool] = useState<Tool>("pen");
+	const [isDrawing, setIsDrawing] = useState(false);
 	const [currentColor, setCurrentColor] = useState("#000000");
-	const [strokeWidth, setStrokeWidth] = useState(5);
+	const [strokeWidth, setStrokeWidth] = useState(2);
+	const [tool, setTool] = useState<Tool>("pencil");
 
-	// Drawing state
-	const isDrawing = useRef(false);
-	const stageRef = useRef<Konva.Stage>(null);
+	const lastPosRef = useRef<{ x: number; y: number } | null>(null);
+	const canvasRef = useRef<HTMLCanvasElement>(null);
 
-	// History for undo
-	const historyRef = useRef<{ strokes: Stroke[]; bgColor: string }[]>([
-		{ strokes: [], bgColor: "#FFFFFF" },
-	]);
-	const historyIndexRef = useRef(0);
-
-	// Container size state
-	const canvasContainerRef = useRef<HTMLDivElement>(null);
-	const [stageSize, setStageSize] = useState({ width: 800, height: 600 });
-
-	// Update stage size based on container
-	useEffect(() => {
-		const updateSize = () => {
-			if (canvasContainerRef.current) {
-				const { clientWidth, clientHeight } = canvasContainerRef.current;
-				setStageSize({
-					width: clientWidth || 800,
-					height: clientHeight || 600,
-				});
-			}
-		};
-
-		updateSize();
-		window.addEventListener("resize", updateSize);
-		return () => window.removeEventListener("resize", updateSize);
+	const getContext = useCallback(() => {
+		const canvas = canvasRef.current;
+		if (!canvas) return null;
+		return canvas.getContext("2d");
 	}, []);
 
-	// ===========================================
-	// Socket: Send drawing data to others
-	// ===========================================
+	const getCanvasCoordinates = (e: React.MouseEvent<HTMLCanvasElement>) => {
+		const canvas = canvasRef.current;
+		if (!canvas) return { x: 0, y: 0 };
 
-	/**
-	 * Emits drawing action to server for broadcasting to other players.
-	 * Called after each completed stroke, fill, clear, or undo action.
-	 */
-	const emitDrawingData = useCallback(
-		(action: DrawAction) => {
-			if (!socket || !isDrawer) return;
-			socket.emit("drawingData", action);
-		},
-		[socket, isDrawer],
-	);
+		const rect = canvas.getBoundingClientRect();
+		const scaleX = canvas.width / rect.width;
+		const scaleY = canvas.height / rect.height;
 
-	// ===========================================
-	// Socket: Receive drawing data from drawer
-	// ===========================================
-
-	/**
-	 * Listens for drawing actions from the drawer and updates local canvas.
-	 * Handles: stroke (add new stroke), fill (change bg), clear (reset canvas), undo (remove last stroke)
-	 */
-	useEffect(() => {
-		if (!socket || isDrawer) return;
-
-		const handleDrawingData = (action: DrawAction) => {
-			switch (action.type) {
-				case "stroke":
-					if (action.data && "points" in action.data) {
-						// Add new stroke from drawer
-						setStrokes((prev) => [...prev, action.data as Stroke]);
-					} else {
-						// Undo action: remove last stroke
-						setStrokes((prev) => prev.slice(0, -1));
-					}
-					break;
-
-				case "fill":
-					if (action.data && "color" in action.data) {
-						setBackgroundColor(action.data.color);
-					}
-					break;
-
-				case "clear":
-					setStrokes([]);
-					setBackgroundColor("#FFFFFF");
-					break;
-			}
+		return {
+			x: (e.clientX - rect.left) * scaleX,
+			y: (e.clientY - rect.top) * scaleY,
 		};
-
-		socket.on("drawingData", handleDrawingData);
-
-		return () => {
-			socket.off("drawingData", handleDrawingData);
-		};
-	}, [socket, isDrawer]);
-
-	// ===========================================
-	// History Management (Undo)
-	// ===========================================
-
-	const saveToHistory = useCallback(
-		(newStrokes: Stroke[], newBgColor: string) => {
-			historyRef.current = historyRef.current.slice(
-				0,
-				historyIndexRef.current + 1,
-			);
-			historyRef.current.push({ strokes: newStrokes, bgColor: newBgColor });
-			historyIndexRef.current += 1;
-		},
-		[],
-	);
-
-	const handleUndo = useCallback(() => {
-		if (historyIndexRef.current === 0) return;
-		historyIndexRef.current -= 1;
-		const state = historyRef.current[historyIndexRef.current];
-		setStrokes(state.strokes);
-		setBackgroundColor(state.bgColor);
-		emitDrawingData({ type: "stroke", data: null });
-	}, [emitDrawingData]);
-
-	const handleClear = useCallback(() => {
-		const newStrokes: Stroke[] = [];
-		const newBgColor = "#FFFFFF";
-		setStrokes(newStrokes);
-		setBackgroundColor(newBgColor);
-		saveToHistory(newStrokes, newBgColor);
-		emitDrawingData({ type: "clear", data: null });
-	}, [saveToHistory, emitDrawingData]);
-
-	// ===========================================
-	// Drawing Event Handlers
-	// ===========================================
-
-	const handleMouseDown = (e: KonvaEventObject<MouseEvent | TouchEvent>) => {
-		if (!isDrawer) return;
-
-		const stage = e.target.getStage();
-		const pos = stage?.getPointerPosition();
-		if (!pos) return;
-
-		if (currentTool === "fill") {
-			const newBgColor = currentColor;
-			setBackgroundColor(newBgColor);
-			saveToHistory(strokes, newBgColor);
-			emitDrawingData({ type: "fill", data: { color: currentColor } });
-			return;
-		}
-
-		isDrawing.current = true;
-
-		const newStroke: Stroke = {
-			id: generateId(),
-			tool: currentTool,
-			points: [pos.x, pos.y],
-			color: currentColor,
-			strokeWidth: currentTool === "eraser" ? strokeWidth * 2 : strokeWidth,
-		};
-
-		setStrokes((prev) => [...prev, newStroke]);
 	};
 
-	const handleMouseMove = (e: KonvaEventObject<MouseEvent | TouchEvent>) => {
-		if (!isDrawing.current || !isDrawer) return;
+	const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+		const pos = getCanvasCoordinates(e);
+		lastPosRef.current = pos;
+		setIsDrawing(true);
+	};
 
-		const stage = e.target.getStage();
-		const point = stage?.getPointerPosition();
-		if (!point) return;
+	const stopDrawing = () => {
+		setIsDrawing(false);
+		lastPosRef.current = null;
+	};
 
-		setStrokes((prev) => {
-			const lastStroke = prev[prev.length - 1];
-			if (!lastStroke) return prev;
+	const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+		const canvas = canvasRef.current;
+		if (!isDrawing || !lastPosRef.current || !canvas || !socket) return;
 
-			const newPoints = [...lastStroke.points, point.x, point.y];
-			return [...prev.slice(0, -1), { ...lastStroke, points: newPoints }];
+		const ctx = getContext();
+		if (!ctx) return;
+
+		const pos = getCanvasCoordinates(e);
+		const from = lastPosRef.current;
+
+		ctx.beginPath();
+		ctx.moveTo(from.x, from.y);
+		ctx.lineTo(pos.x, pos.y);
+		ctx.strokeStyle = tool === "eraser" ? "#FFFFFF" : currentColor;
+		ctx.lineWidth = strokeWidth;
+		ctx.lineCap = "round";
+		ctx.lineJoin = "round";
+		ctx.stroke();
+
+		lastPosRef.current = pos;
+
+		const normalize = (p: { x: number; y: number }) => ({
+			x: p.x / canvas.width,
+			y: p.y / canvas.height,
+		});
+
+		socket.emit("canvasData", {
+			type: "stroke",
+			from: normalize(from),
+			to: normalize(pos),
+			color: tool === "eraser" ? "#FFFFFF" : currentColor,
+			width: strokeWidth / canvas.width,
+			tool,
 		});
 	};
 
-	const handleMouseUp = () => {
-		if (!isDrawing.current || !isDrawer) return;
-		isDrawing.current = false;
+	const clearCanvas = () => {
+		const canvas = canvasRef.current;
+		const ctx = getContext();
+		if (!canvas || !ctx) return;
+		ctx.fillStyle = "#FFFFFF";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-		saveToHistory(strokes, backgroundColor);
-
-		const lastStroke = strokes[strokes.length - 1];
-		if (lastStroke) {
-			emitDrawingData({ type: "stroke", data: lastStroke });
-		}
+		socket?.emit("clearCanvas");
 	};
+
+	// for listening incomming canvas events
+	useEffect(() => {
+		if (!socket || socket.hasListeners("canvasData")) return;
+		socket.on("canvasData", (data) => {
+			const ctx = getContext();
+			if (!ctx) return;
+
+			const canvas = canvasRef.current;
+			if (!canvas) return;
+
+			const { from, to, color, width } = data;
+
+			// Denormalize coordinates
+			const fromX = from.x * canvas.width;
+			const fromY = from.y * canvas.height;
+			const toX = to.x * canvas.width;
+			const toY = to.y * canvas.height;
+
+			ctx.save();
+
+			ctx.beginPath();
+			ctx.moveTo(fromX, fromY);
+			ctx.lineTo(toX, toY);
+			ctx.strokeStyle = color;
+			ctx.lineWidth = width * canvas.width;
+			ctx.lineCap = "round";
+			ctx.lineJoin = "round";
+			ctx.stroke();
+
+			ctx.restore();
+		});
+
+		socket.on("clearCanvas", () => {
+			const canvas = canvasRef.current;
+			const ctx = getContext();
+			if (!canvas || !ctx) return;
+
+			ctx.fillStyle = "#FFFFFF";
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+		});
+
+		return () => {
+			socket.off("canvasData");
+			socket.off("clearCanvas");
+		};
+	}, [socket, getContext]);
+
+	// for setting canvas details
+	useEffect(() => {
+		const canvas = canvasRef.current;
+		if (!canvas) return;
+
+		const ctx = canvas.getContext("2d");
+		if (!ctx) return;
+
+		// Set canvas size
+		canvas.width = 600;
+		canvas.height = 400;
+
+		// Fill with white background
+		ctx.fillStyle = "#FFFFFF";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+	}, []);
 
 	// ===========================================
 	// Toolbar Component (only shown to drawer)
@@ -284,9 +228,9 @@ export function DrawingBoard() {
 					<SelectTrigger>
 						<SelectValue>
 							{/*<div
-								className="w-4 h-4 rounded border"
-								style={{ backgroundColor: currentColor }}
-							/>*/}
+							className="w-4 h-4 rounded border"
+							style={{ backgroundColor: currentColor }}
+						/>*/}
 						</SelectValue>
 					</SelectTrigger>
 					<SelectContent
@@ -295,14 +239,10 @@ export function DrawingBoard() {
 						className="w-fit min-w-0 bg-accent"
 					>
 						{COLORS.map((color) => (
-							<SelectItem
-								key={color.value}
-								value={color.value}
-								className="w-fit"
-							>
+							<SelectItem key={color} value={color} className="w-fit">
 								<div
 									className="w-4 h-4 rounded border"
-									style={{ backgroundColor: color.value }}
+									style={{ backgroundColor: color }}
 								/>
 							</SelectItem>
 						))}
@@ -313,43 +253,43 @@ export function DrawingBoard() {
 			<div className="flex gap-1">
 				<button
 					type="button"
-					onClick={() => setCurrentTool("pen")}
-					className={`p-2 rounded ${currentTool === "pen" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+					onClick={() => setTool("pencil")}
+					className={`p-2 rounded ${tool === "pencil" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
 					title="Pen"
 				>
 					<Pencil size={20} />
 				</button>
 				<button
 					type="button"
-					onClick={() => setCurrentTool("eraser")}
-					className={`p-2 rounded ${currentTool === "eraser" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+					onClick={() => setTool("eraser")}
+					className={`p-2 rounded ${tool === "eraser" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
 					title="Eraser"
 				>
 					<Eraser size={20} />
 				</button>
-				<button
-					type="button"
-					onClick={() => setCurrentTool("fill")}
-					className={`p-2 rounded ${currentTool === "fill" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
-					title="Fill Background"
-				>
-					<PaintBucket size={20} />
-				</button>
+				{/*<button
+	        type="button"
+	        onClick={() => setCurrentTool("fill")}
+	        className={`p-2 rounded ${tool === "fill" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+	        title="Fill Background"
+	      >
+	        <PaintBucket size={20} />
+	      </button>*/}
 			</div>
 
 			{/* Actions */}
 			<div className="flex gap-1">
+				{/*<button
+	        type="button"
+	        onClick={handleUndo}
+	        className="p-2 rounded hover:bg-muted disabled:opacity-50"
+	        title="Undo"
+	      >
+	        <Undo2 size={20} />
+	      </button>*/}
 				<button
 					type="button"
-					onClick={handleUndo}
-					className="p-2 rounded hover:bg-muted disabled:opacity-50"
-					title="Undo"
-				>
-					<Undo2 size={20} />
-				</button>
-				<button
-					type="button"
-					onClick={handleClear}
+					onClick={clearCanvas}
 					className="p-2 rounded hover:bg-muted text-destructive"
 					title="Clear Canvas"
 				>
@@ -362,58 +302,16 @@ export function DrawingBoard() {
 	return (
 		<>
 			<Card className="flex flex-col p-1 m-2 rounded-xl flex-1">
-				{/* Canvas Area - takes 85% when toolbar shown, 100% otherwise */}
-				<div
-					ref={canvasContainerRef}
-					className={`size-full rounded-md overflow-hidden bg-white`}
-				>
-					<Stage
-						ref={stageRef}
-						width={stageSize.width}
-						height={stageSize.height}
-						onMouseDown={handleMouseDown}
-						onMousemove={handleMouseMove}
-						onMouseup={handleMouseUp}
-						onMouseLeave={handleMouseUp}
-						onTouchStart={handleMouseDown}
-						onTouchMove={handleMouseMove}
-						onTouchEnd={handleMouseUp}
-						style={{
-							cursor: isDrawer ? "crosshair" : "default",
-						}}
-					>
-						<Layer>
-							{/* Background */}
-							<Rect
-								x={0}
-								y={0}
-								width={stageSize.width}
-								height={stageSize.height}
-								fill={backgroundColor}
-								listening={false}
-							/>
-
-							{/* Strokes */}
-							{strokes.map((stroke) => (
-								<Line
-									key={stroke.id}
-									points={stroke.points}
-									stroke={stroke.color}
-									strokeWidth={stroke.strokeWidth}
-									tension={0.5}
-									lineCap="round"
-									lineJoin="round"
-									globalCompositeOperation={
-										stroke.tool === "eraser" ? "destination-out" : "source-over"
-									}
-									listening={false}
-									draggable={false}
-								/>
-							))}
-						</Layer>
-					</Stage>
+				<div className="flex-1 flex items-center justify-center bg-muted">
+					<canvas
+						ref={canvasRef}
+						className={`bg-white rounded border border-border ${isDrawer ? "cursor-crosshair" : "cursor-not-allowed"} w-full h-full`}
+						onMouseDown={isDrawer ? startDrawing : undefined}
+						onMouseMove={isDrawer ? draw : undefined}
+						onMouseUp={isDrawer ? stopDrawing : undefined}
+						onMouseLeave={isDrawer ? stopDrawing : undefined}
+					/>
 				</div>
-
 				{/* Toolbar - 15% height, only visible for drawer */}
 			</Card>
 			{isDrawer ? (

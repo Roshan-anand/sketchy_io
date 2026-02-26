@@ -47,7 +47,9 @@ export const gameListeners = (ws: TypedScoket) => {
 	});
 
 	// to handle drawing data from drawer
-	ws.on("drawingData", (data) =>
-		ws.to(ws.data.roomId).emit("drawingData", data),
-	);
+	ws.on("canvasData", (data) => ws.to(ws.data.roomId).emit("canvasData", data));
+
+	ws.on("clearCanvas", () => {
+		ws.to(ws.data.roomId).emit("clearCanvas");
+	});
 };
