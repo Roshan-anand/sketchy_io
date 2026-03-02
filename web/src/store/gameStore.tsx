@@ -59,7 +59,7 @@ type Store = {
 
 const useGameStore = create<Store>()((set, get) => ({
 	// to handle players in the room
-	gameState: GameState.ONBOARDING,
+	gameState: GameState.PLAYING,
 	setGameState: (state) => set({ gameState: state }),
 	roomId: null,
 	hostId: null,
@@ -113,10 +113,10 @@ const useGameStore = create<Store>()((set, get) => ({
 		set({ gameIntervalId: id });
 	},
 	// to handle the match
-	canvaState: CanvaState.SETTINGS,
+	canvaState: CanvaState.DRAW,
 	canType: true,
 	round: 0,
-	matchUtils: { isDrawer: false },
+	matchUtils: { isDrawer: true },
 	matchTimer: 0,
 	scoreBoard: { scores: [], word: "" },
 	chatMsgs: [],

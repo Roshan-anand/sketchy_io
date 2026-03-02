@@ -11,7 +11,7 @@ function App() {
 	const { gameState } = useGameStore();
 
 	return (
-		<main className="w-screen h-screen py-2 flex flex-col">
+		<main className="w-screen h-screen min-h-0 py-2 flex flex-col">
 			<RootHeader />
 			{gameState === GameState.ONBOARDING ? (
 				<>

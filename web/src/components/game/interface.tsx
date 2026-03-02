@@ -12,7 +12,7 @@ export function GameInterface() {
 	const { gameState } = useGameStore();
 
 	return (
-		<main className="flex-1 flex justify-center items-center">
+		<main className="min-h-0 flex-1 flex justify-center items-center max-h-[95vh]">
 			{gameState === GameState.FINDING ? (
 				<div className="size-full flex justify-center items-center">
 					<Spinner className="size-[30%] max-w-25 " />

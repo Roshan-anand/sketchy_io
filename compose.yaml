@@ -1,6 +1,6 @@
 services:
   server:
-    image: sketchy-server:0.1.4
+    image: sketchy-server:0.2.4
     build:
       context: ./server
       dockerfile: Dockerfile

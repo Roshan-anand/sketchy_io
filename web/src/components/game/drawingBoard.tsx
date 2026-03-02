@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { Tool } from "@/lib/types";
 import useGameStore from "@/store/gameStore";
 import useSocketStore from "@/store/socketStore";
+import { Button } from "../ui/button";
 import { Card, CardFooter } from "../ui/card";
 import {
 	Select,
@@ -200,10 +201,7 @@ export function DrawingBoard() {
 		ctx.fillRect(0, 0, canvas.width, canvas.height);
 	}, []);
 
-	// ===========================================
 	// Toolbar Component (only shown to drawer)
-	// ===========================================
-
 	const Toolbar = () => (
 		<CardFooter className="flex items-center justify-between bg-background border-4 border-border p-2 ">
 			{/* Stroke Width Select */}
@@ -261,31 +259,35 @@ export function DrawingBoard() {
 				</Select>
 			</div>
 
+			{/* Tools */}
 			<div className="flex gap-1">
-				<button
+				<Button
 					type="button"
 					onClick={() => setTool("pencil")}
-					className={`p-2 rounded ${tool === "pencil" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+					className={`p-2 rounded ${tool === "pencil" ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-primary"}`}
 					title="Pen"
+					variant={"primary"}
 				>
 					<Pencil size={20} />
-				</button>
-				<button
+				</Button>
+				<Button
 					type="button"
 					onClick={() => setTool("eraser")}
-					className={`p-2 rounded ${tool === "eraser" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+					className={`p-2 rounded ${tool === "eraser" ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-primary"}`}
 					title="Eraser"
+					variant={"primary"}
 				>
 					<Eraser size={20} />
-				</button>
-				<button
+				</Button>
+				<Button
 					type="button"
 					onClick={() => setTool("fill")}
-					className={`p-2 rounded ${tool === "fill" ? "bg-primary text-primary-foreground" : "hover:bg-muted"}`}
+					className={`p-2 rounded ${tool === "fill" ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-primary"}`}
 					title="Fill Background"
+					variant={"primary"}
 				>
 					<PaintBucket size={20} />
-				</button>
+				</Button>
 			</div>
 
 			{/* Actions */}
@@ -298,14 +300,15 @@ export function DrawingBoard() {
 	      >
 	        <Undo2 size={20} />
 	      </button>*/}
-				<button
+				<Button
 					type="button"
 					onClick={clearCanvas}
-					className="p-2 rounded hover:bg-muted text-destructive"
+					// className="p-2 rounded hover:bg-muted text-destructive"
 					title="Clear Canvas"
+					variant={"destructive"}
 				>
 					<Trash2 size={20} />
-				</button>
+				</Button>
 			</div>
 		</CardFooter>
 	);
