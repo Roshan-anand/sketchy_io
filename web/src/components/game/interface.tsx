@@ -20,10 +20,10 @@ export function GameInterface() {
 			) : (
 				<div className="size-full flex flex-col p-2">
 					<GameInfo className="" />
-					<span className="flex-1 flex">
-						<PlayersInfo className="flex-1 shadow border-4" />
-						<GameCanva className="flex-4" />
-						<PlayerInput className="flex-1 shadow border-4" />
+					<span className="flex-1 grid gap-4 grid-cols-4 grid-rows-2 md:grid-cols-4 md:grid-rows-1">
+						<PlayersInfo className="flex-1 shadow border-4 col-span-2 row-start-2 md:col-span-1 md:row-start-auto" />
+						<GameCanva className="flex-4 col-span-4 row-start-1 md:col-span-2 md:row-start-auto" />
+						<PlayerInput className="flex-1 shadow border-4 col-span-2 row-start-2 md:col-span-1 md:row-start-auto" />
 					</span>
 				</div>
 			)}

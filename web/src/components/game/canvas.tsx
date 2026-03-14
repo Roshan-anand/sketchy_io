@@ -16,7 +16,7 @@ export function GameCanva({ className }: ComponentProps<"div">) {
 				<DrawingBoard />
 			) : (
 				<>
-					<Card className={cn("min-h-75 p-0 m-2 rounded-md", className)}>
+					<Card className={cn("min-h-75 p-0 md:m-2 rounded-md", className)}>
 						{canvaState === CanvaState.SETTINGS ? (
 							<GameSettings />
 						) : canvaState === CanvaState.SCORE_BOARD ? (

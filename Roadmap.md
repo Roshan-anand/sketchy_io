@@ -6,19 +6,17 @@ Note: If a task number is missing from the summary it is listed with a more deta
 
 - [ ] F1: Quick join public room If no ID
 - [ ] F2: New public room if invalid room ID
-- [ ] F3: Avatar customization options **[ medium, ui ]**
-- [ ] F4: Random avatar generator **[ easy, ui ]**
-- [ ] F5: Footer section having intro and rules **[ easy, ui ]**
+- [x] F3: Avatar customization options **[ medium, ui ]**
+- [x] F4: Random avatar generator **[ easy, ui ]**
+- [x] F5: Footer section having intro and rules **[ easy, ui ]**
 
 ## In game
 
-- [ ] F7: Players settings
-- [ ] F9: Sound effects and background music **[ medium, frontend ]**
+- [x] F9: Sound effects and background music **[ medium, frontend ]**
 - [ ] F10: Ban functionality
 
 ## Out of box **[ discussen needed ]**
 
-- [ ] F11: Tutorial for new users
 - [ ] F12: Spy Mode
 - [ ] F13: AI generated words
 - [ ] F17: In game voice chat
@@ -29,12 +27,22 @@ Note: If a task number is missing from the summary it is listed with a more deta
 # Task breakdown
 
 - [ ] F6: Game room settings
-   - [ ] T1: Custom words
+  - [ ] T1: Custom words
 
-- [ ] F8: Drawing Board
-  - [ ] T1: Real-time drawing
-  - [ ] T2: Drawing tools (colors, brush size, eraser)
-  - [ ] T3: Undo functionality
+- [ ] F7: Players settings
+  - [ ] T1: Volume control.
+  - [ ] T2: Hotkeys configuration.
+
+- [x] F8: Drawing Board
+  - [x] T1: Real-time drawing
+  - [x] T2: Drawing tools (colors, brush size, eraser)
+  - [x] T3: Undo functionality
+
+- [ ] F11: Hotkeys
+  - [ ] T1: B for brush
+  - [ ] T2: E for eraser
+  - [ ] T3: D for clear board
+  - [ ] T4: F for fill tool
 
 # Bugs [ TASK ] [ priotity ]
 
