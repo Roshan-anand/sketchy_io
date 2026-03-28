@@ -10,6 +10,14 @@ install-server :
 
 install : install-web install-server
 
+dev-web :
+	cd web && bun run dev
+
+dev-server :
+	cd server && bun run dev
+
+dev : dev-web dev-server
+
 check-web :
 	cd web && bun check
 

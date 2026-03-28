@@ -10,7 +10,6 @@ import {
 	type RoomUtilData,
 	type Setting,
 } from "../lib/types";
-import { getRandomArrVal } from "../lib/utils";
 import { WordsCuration } from "./curateWords";
 import { GameTimer } from "./gameTimer";
 
@@ -227,8 +226,8 @@ export class GameRoom {
 	/** chooses a random player as drawer */
 	private chooseDrawer() {
 		// choose a drawer
-		// const drawerId = this.remainingPlayers.shift();
-		const drawerId = getRandomArrVal(this.remainingPlayers);
+		const drawerId = this.remainingPlayers.shift();
+		// const drawerId = getRandomArrVal(this.remainingPlayers);
 		const drawer = this.players.get(drawerId as string);
 		if (!drawerId) {
 			this.endRound();
@@ -238,6 +237,8 @@ export class GameRoom {
 			this.chooseDrawer();
 			return;
 		}
+
+		console.log("drawer chosen ", drawer.name);
 
 		this.drawerId = drawerId;
 		this.matchStatus = MatchStatus.CHOOSING;
