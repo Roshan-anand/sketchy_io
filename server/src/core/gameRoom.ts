@@ -238,8 +238,6 @@ export class GameRoom {
 			return;
 		}
 
-		console.log("drawer chosen ", drawer.name);
-
 		this.drawerId = drawerId;
 		this.matchStatus = MatchStatus.CHOOSING;
 		const choices = this.wordCuration.getCuratedWords(
@@ -331,7 +329,7 @@ export class GameRoom {
 
 		// add remaining players to the match
 		this.remainingPlayers = Array.from(this.players.keys());
-		await Bun.sleep(3000);
+		await Bun.sleep(2000);
 		this.chooseDrawer();
 	}
 

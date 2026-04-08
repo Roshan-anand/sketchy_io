@@ -83,17 +83,17 @@ function GameResult() {
 }
 
 function CanvaUtils() {
-	const { canvaState, round, matchUtils, setGameIntervalId } = useGameStore();
+	const { canvaState, round, matchChoice, setGameIntervalId } = useGameStore();
 	const { socket } = useSocketStore();
 	return (
 		<CardContent className="flex flex-col justify-center items-center flex-1">
 			{canvaState === CanvaState.CHOOSE && (
 				<h1 className="flex flex-col items-center font-bold">
-					{matchUtils.isDrawer ? (
+					{matchChoice.isDrawer ? (
 						<>
 							<div>Your are choosing</div>
 							<ul className="flex flex-wrap justify-center gap-2 my-2">
-								{matchUtils.choices?.map((word) => (
+								{matchChoice.choices.map((word) => (
 									<Button
 										key={word}
 										variant={"muted"}
@@ -111,7 +111,7 @@ function CanvaUtils() {
 							</ul>
 						</>
 					) : (
-						`${matchUtils.drawerName} is choosing`
+						`${matchChoice.drawerName} is choosing`
 					)}
 				</h1>
 			)}

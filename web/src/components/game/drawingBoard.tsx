@@ -37,9 +37,9 @@ const STROKE_WIDTHS = [
 ];
 
 export function DrawingBoard() {
-	const { matchUtils } = useGameStore();
+	const { matchChoice } = useGameStore();
 	const { socket } = useSocketStore();
-	const isDrawer = matchUtils.isDrawer;
+	const isDrawer = matchChoice.isDrawer;
 
 	const [isDrawing, setIsDrawing] = useState(false);
 	const [currentColor, setCurrentColor] = useState("#000000");

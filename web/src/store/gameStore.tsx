@@ -13,14 +13,25 @@ import {
 	type startMatchData,
 } from "@/lib/types";
 
-// TODO : replace drawerName with full player details
-type MatchUtils =
+type MatchWord =
 	| {
 			isDrawer: true;
-			choices?: string[];
-			word?: string;
+			word: string;
 	  }
-	| { isDrawer: false; drawerName?: string; hiddenWord?: string[] };
+	| {
+			isDrawer: false;
+			hiddenWord: string[];
+	  };
+
+type MatchChoice =
+	| {
+			isDrawer: true;
+			choices: string[];
+	  }
+	| {
+			isDrawer: false;
+			drawerName: string;
+	  };
 
 type Store = {
 	gameState: GameState;
@@ -42,7 +53,8 @@ type Store = {
 	canvaState: CanvaState;
 	canType: boolean; // to control if the player can type in chat
 	round: number;
-	matchUtils: MatchUtils;
+	matchWord: MatchWord;
+	matchChoice: MatchChoice;
 	matchTimer: number;
 	scoreBoard: ScoreBoard;
 	addChatMsg: (msgs: ChatMsg) => void;
@@ -116,7 +128,8 @@ const useGameStore = create<Store>()((set, get) => ({
 	canvaState: CanvaState.SETTINGS,
 	canType: true,
 	round: 0,
-	matchUtils: { isDrawer: false },
+	matchWord: { isDrawer: false, hiddenWord: [] },
+	matchChoice: { isDrawer: false, drawerName: "" },
 	matchTimer: 0,
 	scoreBoard: { scores: [], word: "" },
 	chatMsgs: [],
@@ -128,12 +141,12 @@ const useGameStore = create<Store>()((set, get) => ({
 	},
 	setMatchTimer: (time) => set({ matchTimer: time }),
 	setHiddenWord: (word) => {
-		const { matchUtils } = get();
+		const { matchWord } = get();
 
-		if (!matchUtils.isDrawer)
+		if (!matchWord.isDrawer)
 			set({
-				matchUtils: {
-					...matchUtils,
+				matchWord: {
+					isDrawer: false,
 					hiddenWord: word,
 				},
 			});
@@ -141,8 +154,7 @@ const useGameStore = create<Store>()((set, get) => ({
 	setGuessed: (word) =>
 		set({
 			canType: false,
-			matchUtils: {
-				...get().matchUtils,
+			matchWord: {
 				isDrawer: false,
 				hiddenWord: word,
 			},
@@ -150,14 +162,14 @@ const useGameStore = create<Store>()((set, get) => ({
 	updateRound: (round) => set({ round, canvaState: CanvaState.ROUND }),
 	setChoosingInfo: (data) =>
 		set({
-			matchUtils: { ...get().matchUtils, ...data },
+			matchChoice: data,
 			canvaState: CanvaState.CHOOSE,
 			matchTimer: 15,
 		}),
 	setStartMatch: (matchInfo, time) =>
 		set({
 			gameState: GameState.PLAYING,
-			matchUtils: { ...get().matchUtils, ...matchInfo },
+			matchWord: matchInfo,
 			matchTimer: time,
 			canvaState: CanvaState.DRAW,
 			chatMsgs: [],
@@ -165,7 +177,8 @@ const useGameStore = create<Store>()((set, get) => ({
 	setEndMatch: (scoreBoard) =>
 		set({
 			canType: true,
-			matchUtils: { isDrawer: false },
+			matchWord: { isDrawer: false, hiddenWord: [] },
+			matchChoice: { isDrawer: false, drawerName: "" },
 			matchTimer: 0,
 			canvaState: CanvaState.SCORE_BOARD,
 			scoreBoard,

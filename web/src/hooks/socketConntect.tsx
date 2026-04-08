@@ -54,7 +54,6 @@ const useConnectSocket = () => {
 		socket.on("roomMembers", (data) => setPlayers(data));
 
 		socket.on("disconnect", () => {
-			console.log("disconnected");
 			setIsConnected(false);
 			setGameState(GameState.ONBOARDING);
 		});

@@ -13,7 +13,8 @@ export function GameInfo({ className }: ComponentProps<"div">) {
 		matchTimer,
 		round,
 		canvaState,
-		matchUtils,
+		matchChoice,
+		matchWord,
 		setGameIntervalId,
 		gameState,
 		settings,
@@ -29,12 +30,14 @@ export function GameInfo({ className }: ComponentProps<"div">) {
 
 	/** to emit choiceMade event when time is up in choosing phase */
 	const emitChoiceMade = useCallback(() => {
-		if (!socket || !matchUtils.isDrawer || !matchUtils.choices) return;
+		if (!socket || !matchChoice.isDrawer || !matchChoice.choices) return;
 
 		const word =
-			matchUtils.choices[Math.floor(Math.random() * matchUtils.choices.length)];
+			matchChoice.choices[
+				Math.floor(Math.random() * matchChoice.choices.length)
+			];
 		socket.emit("choiceMade", word);
-	}, [socket, matchUtils]);
+	}, [socket, matchChoice]);
 
 	// Manage the countdown timer based on game state
 	useEffect(() => {
@@ -78,9 +81,9 @@ export function GameInfo({ className }: ComponentProps<"div">) {
 				<h3 className="flex-1 flex justify-center">
 					{gameState === GameState.WAITING
 						? "Waiting"
-						: matchUtils.isDrawer
-							? matchUtils.word
-							: matchUtils.hiddenWord?.join(" ")}
+						: matchWord.isDrawer
+							? matchWord.word
+							: matchWord.hiddenWord?.join(" ")}
 				</h3>
 				<Button variant={"primary"} className="shadow rounded-md">
 					<Settings className="icon-lg" />

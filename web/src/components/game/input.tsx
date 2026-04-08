@@ -9,7 +9,7 @@ import { Input } from "../ui/input";
 
 export function PlayerInput({ className }: ComponentProps<"section">) {
 	const { socket } = useSocketStore();
-	const { matchUtils, canType, setGuessed, chatMsgs, addChatMsg } =
+	const { canType, setGuessed, chatMsgs, addChatMsg, matchChoice } =
 		useGameStore();
 
 	const inputRef = useRef<HTMLInputElement>(null);
@@ -72,7 +72,7 @@ export function PlayerInput({ className }: ComponentProps<"section">) {
 			</CardContent>
 			<CardFooter className="py-4">
 				<Input
-					disabled={matchUtils.isDrawer || !canType}
+					disabled={matchChoice.isDrawer || !canType}
 					onKeyDown={(e) => {
 						if (e.key !== "Enter") return;
 
