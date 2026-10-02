@@ -6,18 +6,20 @@ services:
       dockerfile: Dockerfile
     env_file:
       - ./.env
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.skserver.rule=Host(`skserver.roshananand.cloud`)"
-      - "traefik.http.routers.skserver.entrypoints=websecure"
-      - "traefik.http.routers.skserver.tls.certresolver=cloudflare"
-      - "traefik.http.services.skserver.loadbalancer.server.port=3000"
-      - "traefik.constraint-label=head-proxy"
-    networks:
-      - proxy_net
     deploy:
       update_config:
         order: start-first
+      labels:
+        - "traefik.enable=true"
+        - "traefik.constraint-label=head-proxy"
+        - "traefik.swarm.network=proxy_net"
+        - "traefik.http.routers.skserver.rule=Host(`skserver.rshn.cloud`)"
+        - "traefik.http.routers.skserver.entrypoints=websecure"
+        - "traefik.http.routers.skserver.tls=true"
+        - "traefik.http.routers.skserver.tls.certresolver=le"
+        - "traefik.http.services.skserver.loadbalancer.server.port=3000"
+    networks:
+      - proxy_net
 
 networks:
   proxy_net:

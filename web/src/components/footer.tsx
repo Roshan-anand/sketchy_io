@@ -19,7 +19,7 @@ export function RootFooter() {
 				</CardHeader>
 				<CardContent className="flex flex-col gap-3 ">
 					<h3>
-						skribbl.io is a free online multiplayer drawing and guessing
+						sketchy-io is a free online multiplayer drawing and guessing
 						pictionary game.
 					</h3>
 					<h3>
